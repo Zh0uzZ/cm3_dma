@@ -1,4 +1,5 @@
 module DMA (
+    //APBtarget7  signals
     input  wire          PCLK,    
     input  wire          PRESETn, 
     input  wire          PSEL,    
@@ -8,6 +9,7 @@ module DMA (
     output wire          PREADY,
     output wire   [31:0] PRDATA,  
 
+    //master2 init0
     output reg           HSEL_R,
     output reg   [31:0]  HADDR_R,
     output reg   [2:0]   HBURST_R,
@@ -16,6 +18,7 @@ module DMA (
     input  wire  [31:0]  HRDATA_R,
     input  wire          HREADY_R,
 
+    //master3 init1
     output reg           HSEL_W,
     output reg   [31:0]  HADDR_W,
     output reg   [2:0]   HBURST_W,
@@ -117,7 +120,7 @@ wire fifo_empty , fifo_full;
 reg fifo_rd , fifo_wr;
 fifo #(
     .DATA_WIDTH(32),
-    .ADDR_WIDTH(2)
+    .ADDR_WIDTH(1)
 ) dma_fifo(
     .clk(PCLK),
     .resetn(PRESETn),
