@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 // Verilog-2001 (IEEE Std 1364-2001)
 //------------------------------------------------------------------------------
-`define ROM_FILENAME "soc.hex"
+`define ROM_FILENAME "/home/hank/workspace/vivado/CM3/vivado/cm3_dma/cm3_dma/cm3_dma.sim/sim_1/behav/xsim/soc.hex"
 
 module fpga_top (
     input  wire          fpga_clk,                   // Free running clock

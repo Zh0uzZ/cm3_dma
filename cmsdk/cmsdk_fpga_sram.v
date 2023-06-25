@@ -81,8 +81,8 @@ localparam AWT = ((1<<(AW-2))-1);
       addr_q1 <= ADDR[AW-1:2];
     end
 
-  assign read_data  = {BRAM3[addr_q1],BRAM2[addr_q1],BRAM1[addr_q1],BRAM0[addr_q1]};
-
+//  assign read_data  = |(write_enable[3:0]) ? read_data : {BRAM3[addr_q1],BRAM2[addr_q1],BRAM1[addr_q1],BRAM0[addr_q1]};
+ assign read_data  = |(write_enable[3:0]) ? read_data : {BRAM3[addr_q1],BRAM2[addr_q1],BRAM1[addr_q1],BRAM0[addr_q1]};
   assign RDATA      = (cs_reg) ? read_data : {32{1'b0}};
 
 

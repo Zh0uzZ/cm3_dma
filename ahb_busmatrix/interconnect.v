@@ -45,6 +45,11 @@ module interconnect (
   INITEXP1MEMATTR, INITEXP1EXREQ,                                                            //               - Input
   INITEXP1HREADY, INITEXP1HRDATA, INITEXP1HRESP, INITEXP1EXRESP,                             //               - Output
   INITEXP1HAUSER, INITEXP1HWUSER, INITEXP1HRUSER,                                            //               - I/O User
+  INITEXP2HSEL, INITEXP2HADDR, INITEXP2HTRANS, INITEXP2HMASTER, INITEXP2HWRITE,              // INITEXP2      - Input
+  INITEXP2HSIZE, INITEXP2HMASTLOCK, INITEXP2HWDATA, INITEXP2HBURST, INITEXP2HPROT,           //               - Input
+  INITEXP2MEMATTR, INITEXP2EXREQ,                                                            //               - Input
+  INITEXP2HREADY, INITEXP2HRDATA, INITEXP2HRESP, INITEXP2EXRESP,                             //               - Output
+  INITEXP2HAUSER, INITEXP2HWUSER, INITEXP2HRUSER,                                            //               - I/O User
   TARGEXP0HSEL, TARGEXP0HADDR, TARGEXP0HTRANS, TARGEXP0HMASTER, TARGEXP0HWRITE,              // TARGEXP0      - Output
   TARGEXP0HSIZE, TARGEXP0HMASTLOCK, TARGEXP0HWDATA, TARGEXP0HBURST, TARGEXP0HPROT,           //               - Output
   TARGEXP0MEMATTR, TARGEXP0EXREQ, TARGEXP0HREADYMUX,                                         //               - Output
@@ -241,6 +246,28 @@ module interconnect (
   input         INITEXP1HAUSER;     // HAUSER
   input   [3:0] INITEXP1HWUSER;     // HWUSER
   output  [2:0] INITEXP1HRUSER;     // HRUSER
+
+  // External Master2 Debug Uart (<-> AHB MTX)
+  input         INITEXP2HSEL;       // select
+  input  [31:0] INITEXP2HADDR;      // address
+  input   [1:0] INITEXP2HTRANS;     // transfer type
+  input   [3:0] INITEXP2HMASTER;    // master
+  input         INITEXP2HWRITE;     // write not read
+  input   [2:0] INITEXP2HSIZE;      // transfer size
+  input         INITEXP2HMASTLOCK;  // lock
+  input  [31:0] INITEXP2HWDATA;     // write data
+  input   [2:0] INITEXP2HBURST;     // burst length
+  input   [3:0] INITEXP2HPROT;      // protection
+  input   [1:0] INITEXP2MEMATTR;    // memory attributes
+  input         INITEXP2EXREQ;      // exclusive request
+  output        INITEXP2HREADY;     // transfer done
+  output [31:0] INITEXP2HRDATA;     // read data
+  output        INITEXP2HRESP;      // transfer response
+  output        INITEXP2EXRESP;     // exclusive response
+
+  input         INITEXP2HAUSER;     // HAUSER
+  input   [3:0] INITEXP2HWUSER;     // HWUSER
+  output  [2:0] INITEXP2HRUSER;     // HRUSER
 
   // AHB MTX (<-> Radio)
   output        TARGEXP0HSEL;       // select
@@ -712,6 +739,29 @@ module interconnect (
   wire    [3:0] INITEXP1HWUSER;    // HWUSER
   wire    [2:0] INITEXP1HRUSER;    // HRUSER
 
+
+  // External Master (<-> AHB MTX)
+  wire          INITEXP2HSEL;      // select
+  wire   [31:0] INITEXP2HADDR;     // address
+  wire    [1:0] INITEXP2HTRANS;    // transfer type
+  wire    [3:0] INITEXP2HMASTER;   // master
+  wire          INITEXP2HWRITE;    // write not read
+  wire    [2:0] INITEXP2HSIZE;     // transfer size
+  wire          INITEXP2HMASTLOCK; // lock
+  wire   [31:0] INITEXP2HWDATA;    // write data
+  wire    [2:0] INITEXP2HBURST;    // burst length
+  wire    [3:0] INITEXP2HPROT;     // protection
+  wire    [1:0] INITEXP2MEMATTR;   // memory attributes
+  wire          INITEXP2EXREQ;     // exclusive request
+  wire          INITEXP2HREADY;    // transfer done
+  wire   [31:0] INITEXP2HRDATA;    // read data
+  wire          INITEXP2HRESP;     // transfer response
+  wire          INITEXP2EXRESP;    // exclusive response
+
+  wire          INITEXP2HAUSER;    // HAUSER
+  wire    [3:0] INITEXP2HWUSER;    // HWUSER
+  wire    [2:0] INITEXP2HRUSER;    // HRUSER
+
   // AHB MTX (<-> Radio)
   wire          TARGEXP0HSEL;      // select
   wire   [31:0] TARGEXP0HADDR;     // address
@@ -1107,6 +1157,7 @@ module interconnect (
   // Response signals
   wire    [1:0] i_initexp0hresp;   // Internaly used HRESP
   wire    [1:0] i_initexp1hresp;   // Internaly used HRESP
+  wire    [1:0] i_initexp2hresp;   // Internaly used HRESP
   wire    [1:0] i_targexp0hresp;   // Internaly used HRESP
   wire    [1:0] i_targexp1hresp;   // Internaly used HRESP
   wire    [1:0] i_targflash0hresp; // Internaly used HRESP
@@ -1132,6 +1183,7 @@ module interconnect (
   wire          hreadyoutinitcm3s;  // System ready
   wire          hreadyoutinitexp0;  // transfer done
   wire          hreadyoutinitexp1;  // transfer done
+  wire          hreadyoutinitexp2;  // transfer done
 
   // ------------------------------------------------------------
   // Support Logic
@@ -1140,6 +1192,7 @@ module interconnect (
   assign HREADYS           = hreadyoutinitcm3s;     // System ready
   assign INITEXP0HREADY    = hreadyoutinitexp0;     // transfer done
   assign INITEXP1HREADY    = hreadyoutinitexp1;     // transfer done
+  assign INITEXP2HREADY    = hreadyoutinitexp2;     // transfer done
 
   //Codemux extension for MEMATTR
   assign memattrc          = HTRANSD[1] ? MEMATTRD  : MEMATTRI;
@@ -1147,6 +1200,7 @@ module interconnect (
   //AHB lite protoll only uses HRESP[0]
   assign INITEXP0HRESP     = i_initexp0hresp[0];
   assign INITEXP1HRESP     = i_initexp1hresp[0];
+  assign INITEXP2HRESP     = i_initexp2hresp[0];
 
   assign i_targexp0hresp   = {1'b0,TARGEXP0HRESP};
   assign i_targexp1hresp   = {1'b0,TARGEXP1HRESP};
@@ -1434,6 +1488,28 @@ module interconnect (
      .HREADYOUTINITEXP1(    hreadyoutinitexp1        ),
      .HRESPINITEXP1(        i_initexp1hresp          ),
      .HRUSERINITEXP1(       {INITEXP1HRUSER,INITEXP1EXRESP} ),
+
+     // Input port SI4 (inputs from master 4)
+     .HSELINITEXP2(         INITEXP2HSEL             ),
+     .HADDRINITEXP2(        INITEXP2HADDR            ),
+     .HTRANSINITEXP2(       INITEXP2HTRANS           ),
+     .HWRITEINITEXP2(       INITEXP2HWRITE           ),
+     .HSIZEINITEXP2(        INITEXP2HSIZE            ),
+     .HBURSTINITEXP2(       INITEXP2HBURST           ),
+     .HPROTINITEXP2(        INITEXP2HPROT            ),
+   //   .HMASTERINITEXP2(      INITEXP2HMASTER          ),
+     .HMASTERINITEXP2(      4'h4          ),
+     .HWDATAINITEXP2(       INITEXP2HWDATA           ),
+     .HMASTLOCKINITEXP2(    INITEXP2HMASTLOCK        ),
+     .HREADYINITEXP2(       1'b1                     ),
+     .HAUSERINITEXP2(       {INITEXP2HAUSER,INITEXP2MEMATTR,INITEXP2EXREQ} ),
+     .HWUSERINITEXP2(       INITEXP2HWUSER           ),
+
+     // Input port SI4 (outputs to master 4)
+     .HRDATAINITEXP2(       INITEXP2HRDATA           ),
+     .HREADYOUTINITEXP2(    hreadyoutinitexp2        ),
+     .HRESPINITEXP2(        i_initexp2hresp          ),
+     .HRUSERINITEXP2(       {INITEXP2HRUSER,INITEXP2EXRESP} ),
 
      // Output port MI0 (outputs to slave 0)
      .HSELTARGFLASH0(       TARGFLASH0HSEL             ),

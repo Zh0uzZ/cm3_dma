@@ -280,6 +280,28 @@ module cm3_top #(
   output wire                                 INITEXP1EXRESP,
   output wire [2:0]                           INITEXP1HRUSER,         // INITEXP1, HRUSER,
 
+
+  //  amba.com/AMBA3/AHBLite/r2p0_0, INITEXP2, slave
+  input  wire                                 INITEXP2HSEL,           // INITEXP2, HSELx,
+  input  wire [31:0]                          INITEXP2HADDR,          // INITEXP2, HADDR,
+  input  wire [1:0]                           INITEXP2HTRANS,         // INITEXP2, HTRANS,
+  input  wire                                 INITEXP2HWRITE,         // INITEXP2, HWRITE,
+  input  wire [2:0]                           INITEXP2HSIZE,          // INITEXP2, HSIZE,
+  input  wire [2:0]                           INITEXP2HBURST,         // INITEXP2, HBURST,
+  input  wire [3:0]                           INITEXP2HPROT,          // INITEXP2, HPROT,
+  input  wire [1:0]                           INITEXP2MEMATTR,
+  input  wire                                 INITEXP2EXREQ,
+  input  wire [3:0]                           INITEXP2HMASTER,
+  input  wire [31:0]                          INITEXP2HWDATA,         // INITEXP2, HWDATA,
+  input  wire                                 INITEXP2HMASTLOCK,      // INITEXP2, HMASTLOCK,
+  input  wire                                 INITEXP2HAUSER,         // INITEXP2, HAUSER,
+  input  wire [3:0]                           INITEXP2HWUSER,         // INITEXP2, HWUSER,
+  output wire [31:0]                          INITEXP2HRDATA,         // INITEXP2, HRDATA,
+  output wire                                 INITEXP2HREADY,         // INITEXP2, HREADY,
+  output wire                                 INITEXP2HRESP,          // INITEXP2, HRESP,
+  output wire                                 INITEXP2EXRESP,
+  output wire [2:0]                           INITEXP2HRUSER,         // INITEXP2, HRUSER,
+
   // ----------------------------------------------------------------------------
   // APB TARGET Expansion ports
   // ----------------------------------------------------------------------------
@@ -863,6 +885,7 @@ module cm3_top #(
     .HAUSERINITCM3DI      (hauserinitcm3di_int),
     .HWUSERINITCM3DI      (hwuserinitcm3di_int),
     .HRUSERINITCM3DI      (/*Not supported*/),
+
     .HADDRS               (haddrs),
     .HTRANSS              (htranss),
     .HMASTERS             (hmasters),
@@ -881,6 +904,7 @@ module cm3_top #(
     .HRDATAS              (hrdatas),
     .HRESPS               (hresps),
     .EXRESPS              (exresps),
+
     .INITEXP0HSEL         (INITEXP0HSEL),
     .INITEXP0HADDR        (INITEXP0HADDR),
     .INITEXP0HTRANS       (INITEXP0HTRANS),
@@ -900,6 +924,7 @@ module cm3_top #(
     .INITEXP0HAUSER       (INITEXP0HAUSER),
     .INITEXP0HWUSER       (INITEXP0HWUSER),
     .INITEXP0HRUSER       (INITEXP0HRUSER),
+
     .INITEXP1HSEL         (INITEXP1HSEL),
     .INITEXP1HADDR        (INITEXP1HADDR),
     .INITEXP1HTRANS       (INITEXP1HTRANS),
@@ -919,6 +944,28 @@ module cm3_top #(
     .INITEXP1HAUSER       (INITEXP1HAUSER),
     .INITEXP1HWUSER       (INITEXP1HWUSER),
     .INITEXP1HRUSER       (INITEXP1HRUSER),
+
+
+    .INITEXP2HSEL         (INITEXP2HSEL),
+    .INITEXP2HADDR        (INITEXP2HADDR),
+    .INITEXP2HTRANS       (INITEXP2HTRANS),
+    .INITEXP2HMASTER      (INITEXP2HMASTER),
+    .INITEXP2HWRITE       (INITEXP2HWRITE),
+    .INITEXP2HSIZE        (INITEXP2HSIZE),
+    .INITEXP2HMASTLOCK    (INITEXP2HMASTLOCK),
+    .INITEXP2HWDATA       (INITEXP2HWDATA),
+    .INITEXP2HBURST       (INITEXP2HBURST),
+    .INITEXP2HPROT        (INITEXP2HPROT),
+    .INITEXP2MEMATTR      (INITEXP2MEMATTR),
+    .INITEXP2EXREQ        (INITEXP2EXREQ),
+    .INITEXP2HREADY       (INITEXP2HREADY),
+    .INITEXP2HRDATA       (INITEXP2HRDATA),
+    .INITEXP2HRESP        (INITEXP2HRESP),
+    .INITEXP2EXRESP       (INITEXP2EXRESP),
+    .INITEXP2HAUSER       (INITEXP2HAUSER),
+    .INITEXP2HWUSER       (INITEXP2HWUSER),
+    .INITEXP2HRUSER       (INITEXP2HRUSER),
+
     .TARGEXP0HSEL         (TARGEXP0HSEL),
     .TARGEXP0HADDR        (TARGEXP0HADDR),
     .TARGEXP0HTRANS       (TARGEXP0HTRANS),
@@ -939,6 +986,7 @@ module cm3_top #(
     .TARGEXP0HAUSER       (TARGEXP0HAUSER),
     .TARGEXP0HWUSER       (TARGEXP0HWUSER),
     .TARGEXP0HRUSER       (TARGEXP0HRUSER),
+
     .TARGEXP1HSEL         (TARGEXP1HSEL),
     .TARGEXP1HADDR        (TARGEXP1HADDR),
     .TARGEXP1HTRANS       (TARGEXP1HTRANS),
@@ -959,6 +1007,7 @@ module cm3_top #(
     .TARGEXP1HAUSER       (TARGEXP1HAUSER),
     .TARGEXP1HWUSER       (TARGEXP1HWUSER),
     .TARGEXP1HRUSER       (TARGEXP1HRUSER),
+
     .TARGFLASH0HSEL       (TARGFLASH0HSEL),
     .TARGFLASH0HADDR      (TARGFLASH0HADDR),
     .TARGFLASH0HTRANS     (TARGFLASH0HTRANS),
@@ -979,6 +1028,7 @@ module cm3_top #(
     .TARGFLASH0HAUSER     (TARGFLASH0HAUSER),
     .TARGFLASH0HWUSER     (TARGFLASH0HWUSER),
     .TARGFLASH0HRUSER     (TARGFLASH0HRUSER),
+
     .TARGSRAM0HSEL        (targsram0hsel),
     .TARGSRAM0HADDR       (targsram0haddr),
     .TARGSRAM0HTRANS      (targsram0htrans),
@@ -999,6 +1049,7 @@ module cm3_top #(
     .TARGSRAM0HAUSER      (/*Not supported*/),
     .TARGSRAM0HWUSER      (/*Not supported*/),
     .TARGSRAM0HRUSER      (targsram0hruser_int),
+
     .TARGSRAM1HSEL        (targsram1hsel),
     .TARGSRAM1HADDR       (targsram1haddr),
     .TARGSRAM1HTRANS      (targsram1htrans),
@@ -1019,6 +1070,7 @@ module cm3_top #(
     .TARGSRAM1HAUSER      (/*Not supported*/),
     .TARGSRAM1HWUSER      (/*Not supported*/),
     .TARGSRAM1HRUSER      (targsram1hruser_int),
+
     .TARGSRAM2HSEL        (targsram2hsel),
     .TARGSRAM2HADDR       (targsram2haddr),
     .TARGSRAM2HTRANS      (targsram2htrans),
@@ -1039,6 +1091,7 @@ module cm3_top #(
     .TARGSRAM2HAUSER      (/*Not supported*/),
     .TARGSRAM2HWUSER      (/*Not supported*/),
     .TARGSRAM2HRUSER      (targsram2hruser_int),
+
     .TARGSRAM3HSEL        (targsram3hsel),
     .TARGSRAM3HADDR       (targsram3haddr),
     .TARGSRAM3HTRANS      (targsram3htrans),
@@ -1059,6 +1112,7 @@ module cm3_top #(
     .TARGSRAM3HAUSER      (/*Not supported*/),
     .TARGSRAM3HWUSER      (/*Not supported*/),
     .TARGSRAM3HRUSER      (targsram3hruser_int),
+
     .SCANENABLE           (mtxscanenable_int),
     .SCANINHCLK           (mtxscaninhclk_int),
     .SCANOUTHCLK          (/*Not supported*/),

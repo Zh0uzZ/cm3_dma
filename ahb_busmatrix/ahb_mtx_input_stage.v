@@ -366,7 +366,7 @@ module ahb_mtx_input_stage (
 
   always @ (data_valid or pend_tran_reg or readyout_ip or resp_ip)
     begin : p_ready_comb
-      if (~data_valid)
+      if (~data_valid)  // idle/busy
         begin
           HREADYOUTS = 1'b1;
           HRESPS     = `RSP_OKAY;
