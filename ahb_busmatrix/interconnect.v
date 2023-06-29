@@ -1417,11 +1417,14 @@ module interconnect (
      .HAUSERINITCM3DI(      {HAUSERINITCM3DI,memattrc,exreqc} ),
      .HWUSERINITCM3DI(      {HWUSERINITCM3DI}        ),
 
-     // Input port SI0 (outputs to master 0)
+     // Output port SI0 (outputs to master 0)
      .HRDATAINITCM3DI(      hrdatac                  ),
      .HREADYOUTINITCM3DI(   hreadyc                  ),
      .HRESPINITCM3DI(       hrespc                   ),
      .HRUSERINITCM3DI(      {HRUSERINITCM3DI,exrespc}),
+
+
+
 
      // Input port SI1 (inputs from master 1)
      .HSELINITCM3S(         1'b1                     ),
@@ -1439,11 +1442,14 @@ module interconnect (
      .HAUSERINITCM3S(       {HAUSERINITCM3S,MEMATTRS,EXREQS}),
      .HWUSERINITCM3S(       HWUSERINITCM3S           ),
 
-     // Input port SI1 (outputs to master 1)
+     // Output port SI1 (outputs to master 1)
      .HRDATAINITCM3S(       HRDATAS                  ),
      .HREADYOUTINITCM3S(    hreadyoutinitcm3s        ),
      .HRESPINITCM3S(        HRESPS                   ),
      .HRUSERINITCM3S(       {HRUSERINITCM3S,EXRESPS} ),
+
+
+
 
      // Input port SI2 (inputs from master 2)
      .HSELINITEXP0(         INITEXP0HSEL             ),
@@ -1461,11 +1467,14 @@ module interconnect (
      .HAUSERINITEXP0(       {INITEXP0HAUSER,INITEXP0MEMATTR,INITEXP0EXREQ} ),
      .HWUSERINITEXP0(       INITEXP0HWUSER           ),
 
-     // Input port SI2 (outputs to master 2)
+     // Output port SI2 (outputs to master 2)
      .HRDATAINITEXP0(       INITEXP0HRDATA           ),
      .HREADYOUTINITEXP0(    hreadyoutinitexp0        ),
      .HRESPINITEXP0(        i_initexp0hresp          ),
      .HRUSERINITEXP0(       {INITEXP0HRUSER,INITEXP0EXRESP} ),
+
+
+
 
      // Input port SI3 (inputs from master 3)
      .HSELINITEXP1(         INITEXP1HSEL             ),
@@ -1483,11 +1492,14 @@ module interconnect (
      .HAUSERINITEXP1(       {INITEXP1HAUSER,INITEXP1MEMATTR,INITEXP1EXREQ} ),
      .HWUSERINITEXP1(       INITEXP1HWUSER           ),
 
-     // Input port SI3 (outputs to master 3)
+     // Output port SI3 (outputs to master 3)
      .HRDATAINITEXP1(       INITEXP1HRDATA           ),
      .HREADYOUTINITEXP1(    hreadyoutinitexp1        ),
      .HRESPINITEXP1(        i_initexp1hresp          ),
      .HRUSERINITEXP1(       {INITEXP1HRUSER,INITEXP1EXRESP} ),
+
+
+
 
      // Input port SI4 (inputs from master 4)
      .HSELINITEXP2(         INITEXP2HSEL             ),
@@ -1505,11 +1517,14 @@ module interconnect (
      .HAUSERINITEXP2(       {INITEXP2HAUSER,INITEXP2MEMATTR,INITEXP2EXREQ} ),
      .HWUSERINITEXP2(       INITEXP2HWUSER           ),
 
-     // Input port SI4 (outputs to master 4)
+     // Output port SI4 (outputs to master 4)
      .HRDATAINITEXP2(       INITEXP2HRDATA           ),
      .HREADYOUTINITEXP2(    hreadyoutinitexp2        ),
      .HRESPINITEXP2(        i_initexp2hresp          ),
      .HRUSERINITEXP2(       {INITEXP2HRUSER,INITEXP2EXRESP} ),
+
+
+
 
      // Output port MI0 (outputs to slave 0)
      .HSELTARGFLASH0(       TARGFLASH0HSEL             ),
@@ -1526,11 +1541,14 @@ module interconnect (
      .HAUSERTARGFLASH0(     {TARGFLASH0HAUSER,TARGFLASH0MEMATTR,TARGFLASH0EXREQ} ),
      .HWUSERTARGFLASH0(     TARGFLASH0HWUSER           ),
 
-     // Output port MI0 (inputs from slave 0)
+     // Input port MI0 (inputs from slave 0)
      .HRDATATARGFLASH0(     TARGFLASH0HRDATA           ),
      .HREADYOUTTARGFLASH0(  TARGFLASH0HREADYOUT        ),
      .HRESPTARGFLASH0(      i_targflash0hresp          ),
      .HRUSERTARGFLASH0(     {TARGFLASH0HRUSER,TARGFLASH0EXRESP} ),
+
+
+
 
      // Output port MI1 (outputs to slave 1)
      .HSELTARGSRAM0(        TARGSRAM0HSEL             ),
@@ -1547,11 +1565,14 @@ module interconnect (
      .HAUSERTARGSRAM0(      {TARGSRAM0HAUSER,TARGSRAM0MEMATTR,TARGSRAM0EXREQ} ),
      .HWUSERTARGSRAM0(      TARGSRAM0HWUSER           ),
 
-     // Output port MI1 (inputs from slave 1)
+     // Input port MI1 (inputs from slave 1)
      .HRDATATARGSRAM0(      TARGSRAM0HRDATA           ),
      .HREADYOUTTARGSRAM0(   TARGSRAM0HREADYOUT        ),
      .HRESPTARGSRAM0(       i_targsram0hresp          ),
      .HRUSERTARGSRAM0(      {TARGSRAM0HRUSER,TARGSRAM0EXRESP} ),
+
+
+
 
      // Output port MI2 (outputs to slave 2)
      .HSELTARGSRAM1(        TARGSRAM1HSEL             ),
@@ -1568,11 +1589,14 @@ module interconnect (
      .HAUSERTARGSRAM1(      {TARGSRAM1HAUSER,TARGSRAM1MEMATTR,TARGSRAM1EXREQ} ),
      .HWUSERTARGSRAM1(      TARGSRAM1HWUSER           ),
 
-     // Output port MI2 (inputs from slave 2)
+     // Input port MI2 (inputs from slave 2)
      .HRDATATARGSRAM1(      TARGSRAM1HRDATA           ),
      .HREADYOUTTARGSRAM1(   TARGSRAM1HREADYOUT        ),
      .HRESPTARGSRAM1(       i_targsram1hresp          ),
      .HRUSERTARGSRAM1(      {TARGSRAM1HRUSER,TARGSRAM1EXRESP} ),
+
+
+
 
      // Output port MI3 (outputs to slave 3)
      .HSELTARGSRAM2(        TARGSRAM2HSEL             ),
@@ -1589,11 +1613,14 @@ module interconnect (
      .HAUSERTARGSRAM2(      {TARGSRAM2HAUSER,TARGSRAM2MEMATTR,TARGSRAM2EXREQ} ),
      .HWUSERTARGSRAM2(      TARGSRAM2HWUSER           ),
 
-     // Output port MI3 (inputs from slave 3)
+     // Input port MI3 (inputs from slave 3)
      .HRDATATARGSRAM2(      TARGSRAM2HRDATA           ),
      .HREADYOUTTARGSRAM2(   TARGSRAM2HREADYOUT        ),
      .HRESPTARGSRAM2(       i_targsram2hresp          ),
      .HRUSERTARGSRAM2(      {TARGSRAM2HRUSER,TARGSRAM2EXRESP} ),
+
+
+
 
      // Output port MI4 (outputs to slave 4)
      .HSELTARGSRAM3(        TARGSRAM3HSEL             ),
@@ -1610,11 +1637,14 @@ module interconnect (
      .HAUSERTARGSRAM3(      {TARGSRAM3HAUSER,TARGSRAM3MEMATTR,TARGSRAM3EXREQ} ),
      .HWUSERTARGSRAM3(      TARGSRAM3HWUSER           ),
 
-     // Output port MI4 (inputs from slave 4)
+     // Input port MI4 (inputs from slave 4)
      .HRDATATARGSRAM3(      TARGSRAM3HRDATA           ),
      .HREADYOUTTARGSRAM3(   TARGSRAM3HREADYOUT        ),
      .HRESPTARGSRAM3(       i_targsram3hresp          ),
      .HRUSERTARGSRAM3(      {TARGSRAM3HRUSER,TARGSRAM3EXRESP} ),
+
+
+
 
      // Output port MI5 (outputs to slave 5)
      .HSELTARGAPB0(         targapb0hsel             ),
@@ -1631,7 +1661,7 @@ module interconnect (
      .HAUSERTARGAPB0(       /*Not used by AHB2APB*/  ),
      .HWUSERTARGAPB0(       /*Not used by AHB2APB*/  ),
 
-     // Output port MI5 (inputs from slave 5)
+     // Input port MI5 (inputs from slave 5)
      .HRDATATARGAPB0(       targapb0hrdata           ),
      .HREADYOUTTARGAPB0(    targapb0hreadyout        ),
      .HRESPTARGAPB0(        i_targapb0hresp          ),
@@ -1639,6 +1669,9 @@ module interconnect (
                                                         // meaning that exresp is returned but it is SW
                                                         // responsibility to guarantee exclusivity no HW exclusive
                                                         // Monitor present
+
+
+
 
      // Output port MI6 (outputs to slave 6)
      .HSELTARGEXP0(         TARGEXP0HSEL             ),
@@ -1655,11 +1688,14 @@ module interconnect (
      .HAUSERTARGEXP0(       {TARGEXP0HAUSER,TARGEXP0MEMATTR,TARGEXP0EXREQ} ),
      .HWUSERTARGEXP0(       TARGEXP0HWUSER           ),
 
-     // Output port MI6 (inputs from slave 6)
+     // Input port MI6 (inputs from slave 6)
      .HRDATATARGEXP0(       TARGEXP0HRDATA           ),
      .HREADYOUTTARGEXP0(    TARGEXP0HREADYOUT        ),
      .HRESPTARGEXP0(        i_targexp0hresp          ),
      .HRUSERTARGEXP0(       {TARGEXP0HRUSER,TARGEXP0EXRESP} ),
+
+
+
 
      // Output port MI7 (outputs to slave 7)
      .HSELTARGEXP1(         TARGEXP1HSEL             ),
@@ -1676,7 +1712,7 @@ module interconnect (
      .HAUSERTARGEXP1(       {TARGEXP1HAUSER,TARGEXP1MEMATTR,TARGEXP1EXREQ} ),
      .HWUSERTARGEXP1(       TARGEXP1HWUSER           ),
 
-     // Output port MI7 (inputs from slave 7)
+     // Input port MI7 (inputs from slave 7)
      .HRDATATARGEXP1(       TARGEXP1HRDATA           ),
      .HREADYOUTTARGEXP1(    TARGEXP1HREADYOUT        ),
      .HRESPTARGEXP1(        i_targexp1hresp          ),

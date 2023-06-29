@@ -1,11 +1,10 @@
-module dbg_bridge
+module dbg_bridge_csram
 //-----------------------------------------------------------------
 // Params
 //-----------------------------------------------------------------
 #(
     parameter CLK_FREQ     = 14745600,
     parameter UART_SPEED   = 115200,
-    parameter GPIO_ADDRESS = 32'hf0000000,
     parameter STS_ADDRESS  = 32'hf0000004
 )
 //-----------------------------------------------------------------
@@ -18,7 +17,6 @@ module dbg_bridge
     input wire        uart_rxd_i,
     input wire        dbg_hready,
     input wire [31:0] dbg_hrdata,
-    input wire [31:0] gpio_inputs_i,
 
     // Outputs
     output reg         dbg_hsel,
@@ -30,11 +28,8 @@ module dbg_bridge
     output wire [ 1:0] dbg_htrans,
     output wire [31:0] dbg_hwdata,
     output wire [ 3:0] dbg_hwuser,
-    output wire [31:0] gpio_outputs_o,
     output wire        dbg_hresp
 );
-
-
 
   //-----------------------------------------------------------------
   // Defines
@@ -91,7 +86,7 @@ module dbg_bridge
   // Word storage
   reg  [31:0] data_q;
 
-  wire        magic_addr_w = (mem_addr_q == GPIO_ADDRESS || mem_addr_q == STS_ADDRESS);
+  wire        magic_addr_w = (mem_addr_q == STS_ADDRESS);
 
   //-----------------------------------------------------------------
   // UART core
@@ -334,9 +329,6 @@ module dbg_bridge
         2'd2: data_q[23:16] <= rx_data_w;
         2'd3: data_q[31:24] <= rx_data_w;
       endcase
-    end  // Read from GPIO Input?
-    else if (state_q == STATE_READ && mem_addr_q == GPIO_ADDRESS) begin
-      data_q <= {{(32 - 32) {1'b0}}, gpio_inputs_i};
     end  // Read from status register?
     else if (state_q == STATE_READ && mem_addr_q == STS_ADDRESS)
       data_q <= {16'hcafe, 15'd0, 1'b0};
@@ -419,26 +411,6 @@ module dbg_bridge
   always @(posedge clk_i or negedge rst_i)
     if (!rst_i) mem_wr_q <= 1'b0;
     else if (state_q == STATE_IDLE && rx_valid_w) mem_wr_q <= (rx_data_w == REQ_WRITE);
-
-
-  //-----------------------------------------------------------------
-  // GPIO Outputs
-  //-----------------------------------------------------------------
-  reg gpio_wr_q;
-  reg [31:0] gpio_output_q;
-
-  always @(posedge clk_i or negedge rst_i)
-    if (!rst_i) gpio_wr_q <= 1'b0;
-    else if (mem_addr_q == GPIO_ADDRESS && state_q == STATE_WRITE && rx_valid_w && (data_idx_q == 2'd3 || len_q == 1))
-      gpio_wr_q <= 1'b1;
-    else gpio_wr_q <= 1'b0;
-
-  always @(posedge clk_i or negedge rst_i)
-    if (!rst_i) gpio_output_q <= 32'h0;
-    else if (gpio_wr_q) gpio_output_q <= data_q[31:0];
-
-  assign gpio_outputs_o = gpio_output_q;
-
 
 
 endmodule

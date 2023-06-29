@@ -32,7 +32,7 @@
 
 `timescale 1ns/1ps
 
-module ahb_mtx_arbiterTARGSRAM1 (
+module ahb_mtx_arbiterTARGSRAM (
 
     // Common AHB signals
     HCLK ,
@@ -42,6 +42,7 @@ module ahb_mtx_arbiterTARGSRAM1 (
     req_port1,
     req_port2,
     req_port3,
+    req_port4,
 
     HREADYM,
     HSELM,
@@ -66,12 +67,13 @@ module ahb_mtx_arbiterTARGSRAM1 (
     input        req_port1;     // Port 1 request signal
     input        req_port2;     // Port 2 request signal
     input        req_port3;     // Port 3 request signal
+    input        req_port4;     // Port 4 request signal
     input        HREADYM;      // Transfer done
     input        HSELM;        // Slave select line
     input  [1:0] HTRANSM;      // Transfer type
     input  [2:0] HBURSTM;      // Burst type
     input        HMASTLOCKM;   // Locked transfer
-    output [1:0] addr_in_port;   // Port address input
+    output [2:0] addr_in_port;   // Port address input
     output       no_port;      // No port selected signal
 
 
@@ -108,16 +110,16 @@ module ahb_mtx_arbiterTARGSRAM1 (
     wire [1:0] HTRANSM;        // Transfer type
     wire [2:0] HBURSTM;        // Burst type
     wire       HMASTLOCKM;     // Locked transfer
-    wire [1:0] addr_in_port;     // Address input port
+    wire [2:0] addr_in_port;     // Address input port
     wire       no_port;        // No port selected signal
 
 
 // -----------------------------------------------------------------------------
 // Signal declarations
 // -----------------------------------------------------------------------------
-    reg  [1:0] next_addr_in_port; // D-input of addr_in_port
+    reg  [2:0] next_addr_in_port; // D-input of addr_in_port
     reg                 next_no_port;      // D-input of no_port
-    reg  [1:0] i_addr_in_port;    // Internal version of addr_in_port
+    reg  [2:0] i_addr_in_port;    // Internal version of addr_in_port
     reg                 i_no_port;         // Internal version of no_port
 
     // Burst counter logic
@@ -296,6 +298,7 @@ module ahb_mtx_arbiterTARGSRAM1 (
              req_port1 or
              req_port2 or
              req_port3 or
+             req_port4 or
              HMASTLOCKM or next_burst_hold or HSELM or i_no_port or i_addr_in_port
            )
     begin : p_sel_port_comb
@@ -308,45 +311,66 @@ module ahb_mtx_arbiterTARGSRAM1 (
       else if (i_no_port)
         begin
           if (req_port1)
-            next_addr_in_port = 2'b01;
+            next_addr_in_port = 3'b001;
           else if (req_port2)
-            next_addr_in_port = 2'b10;
+            next_addr_in_port = 3'b010;
           else if (req_port3)
-            next_addr_in_port = 2'b11;
+            next_addr_in_port = 3'b011;
+          else if (req_port4)
+            next_addr_in_port = 3'b100;
           else
             next_no_port = 1'b1;
         end
       else
         case (i_addr_in_port)
-          2'b01 : begin
+          3'b001 : begin
             if (req_port2)
-              next_addr_in_port = 2'b10;
+              next_addr_in_port = 3'b010;
             else if (req_port3)
-              next_addr_in_port = 2'b11;
+              next_addr_in_port = 3'b011;
+            else if (req_port4)
+              next_addr_in_port = 3'b100;
             else if (HSELM)
-              next_addr_in_port = 2'b01;
+              next_addr_in_port = 3'b001;
             else
               next_no_port = 1'b1;
           end
 
-          2'b10 : begin
+          3'b010 : begin
             if (req_port3)
-              next_addr_in_port = 2'b11;
+              next_addr_in_port = 3'b011;
+            else if (req_port4)
+              next_addr_in_port = 3'b100;
             else if (req_port1)
-              next_addr_in_port = 2'b01;
+              next_addr_in_port = 3'b001;
             else if (HSELM)
-              next_addr_in_port = 2'b10;
+              next_addr_in_port = 3'b010;
             else
               next_no_port = 1'b1;
           end
 
-          2'b11 : begin
-            if (req_port1)
-              next_addr_in_port = 2'b01;
+          3'b011 : begin
+            if (req_port4)
+              next_addr_in_port = 3'b100;
+            else if (req_port1)
+              next_addr_in_port = 3'b001;
             else if (req_port2)
-              next_addr_in_port = 2'b10;
+              next_addr_in_port = 3'b010;
             else if (HSELM)
-              next_addr_in_port = 2'b11;
+              next_addr_in_port = 3'b011;
+            else
+              next_no_port = 1'b1;
+          end
+
+          3'b100 : begin
+            if (req_port1)
+              next_addr_in_port = 3'b001;
+            else if (req_port2)
+              next_addr_in_port = 3'b010;
+            else if (req_port3)
+              next_addr_in_port = 3'b011;
+            else if (HSELM)
+              next_addr_in_port = 3'b100;
             else
               next_no_port = 1'b1;
           end
@@ -364,7 +388,7 @@ module ahb_mtx_arbiterTARGSRAM1 (
       if (~HRESETn)
         begin
           i_no_port      <= 1'b1;
-          i_addr_in_port <= {2{1'b0}};
+          i_addr_in_port <= {3{1'b0}};
         end
       else
         if (HREADYM)

@@ -35,223 +35,93 @@
 module ahb_mtx_output_stageTARGFLASH0 (
 
     // Common AHB signals
-    HCLK,
-    HRESETn,
+    input wire HCLK,
+    input wire HRESETn,
 
     // Port 0 Signals
-    sel_op0,
-    addr_op0,
-    auser_op0,
-    trans_op0,
-    write_op0,
-    size_op0,
-    burst_op0,
-    prot_op0,
-    master_op0,
-    mastlock_op0,
-    wdata_op0,
-    wuser_op0,
-    held_tran_op0,
+    input wire        sel_op0,           // Port HSEL signal
+    input wire [31:0] addr_op0,          // Port HADDR signal
+    input wire [3:0]  auser_op0,         // Port HAUSER signal
+    input wire  [1:0] trans_op0,         // Port HTRANS signal
+    input wire        write_op0,         // Port HWRITE signal
+    input wire  [2:0] size_op0,          // Port HSIZE signal
+    input wire  [2:0] burst_op0,         // Port HBURST signal
+    input wire  [3:0] prot_op0,          // Port HPROT signal
+    input wire  [3:0] master_op0,        // Port HMASTER signal
+    input wire        mastlock_op0,      // Port HMASTLOCK signal
+    input wire [31:0] wdata_op0,         // Port HWDATA signal
+    input wire [3:0]  wuser_op0,         // Port HWUSER signal
+    input wire        held_tran_op0,     // Port HeldTran signal
 
     // Port 2 Signals
-    sel_op2,
-    addr_op2,
-    auser_op2,
-    trans_op2,
-    write_op2,
-    size_op2,
-    burst_op2,
-    prot_op2,
-    master_op2,
-    mastlock_op2,
-    wdata_op2,
-    wuser_op2,
-    held_tran_op2,
+    input wire        sel_op2,
+    input wire [31:0] addr_op2,
+    input wire [3:0]  auser_op2,
+    input wire  [1:0] trans_op2,
+    input wire        write_op2,
+    input wire  [2:0] size_op2,
+    input wire  [2:0] burst_op2,
+    input wire  [3:0] prot_op2,
+    input wire  [3:0] master_op2,
+    input wire        mastlock_op2,
+    input wire [31:0] wdata_op2,
+    input wire [3:0]  wuser_op2,
+    input wire        held_tran_op2,
 
     // Port 3 Signals
-    sel_op3,
-    addr_op3,
-    auser_op3,
-    trans_op3,
-    write_op3,
-    size_op3,
-    burst_op3,
-    prot_op3,
-    master_op3,
-    mastlock_op3,
-    wdata_op3,
-    wuser_op3,
-    held_tran_op3,
+    input wire        sel_op3,
+    input wire [31:0] addr_op3,
+    input wire [3:0]  auser_op3,
+    input wire  [1:0] trans_op3,
+    input wire        write_op3,
+    input wire  [2:0] size_op3,
+    input wire  [2:0] burst_op3,
+    input wire  [3:0] prot_op3,
+    input wire  [3:0] master_op3,
+    input wire        mastlock_op3,
+    input wire [31:0] wdata_op3,
+    input wire [3:0]  wuser_op3,
+    input wire        held_tran_op3,
+
+    // Port 4 Signals
+    input wire        sel_op4,
+    input wire [31:0] addr_op4,
+    input wire [3:0]  auser_op4,
+    input wire  [1:0] trans_op4,
+    input wire        write_op4,
+    input wire  [2:0] size_op4,
+    input wire  [2:0] burst_op4,
+    input wire  [3:0] prot_op4,
+    input wire  [3:0] master_op4,
+    input wire        mastlock_op4,
+    input wire [31:0] wdata_op4,
+    input wire [3:0]  wuser_op4,
+    input wire        held_tran_op4,
 
     // Slave read data and response
-    HREADYOUTM,
+    input wire HREADYOUTM,          // HREADY feedback
 
-    active_op0,
-    active_op2,
-    active_op3,
+    output reg  active_op0,    // Port 0 Active signal
+    output reg  active_op2,    // Port 2 Active signal
+    output reg  active_op3,    // Port 3 Active signal
+    output reg  active_op4,    // Port 4 Active signal
 
     // Slave Address/Control Signals
-    HSELM,
-    HADDRM,
-    HAUSERM,
-    HTRANSM,
-    HWRITEM,
-    HSIZEM,
-    HBURSTM,
-    HPROTM,
-    HMASTERM,
-    HMASTLOCKM,
-    HREADYMUXM,
-    HWUSERM,
-    HWDATAM
+    output wire        HSELM,        // Slave select line
+    output reg  [31:0] HADDRM,       // Address
+    output reg  [3:0]  HAUSERM,     // User Address bus
+    output wire  [1:0] HTRANSM,      // Transfer type
+    output reg         HWRITEM,      // Transfer direction
+    output reg   [2:0] HSIZEM,       // Transfer size
+    output wire  [2:0] HBURSTM,      // Burst type
+    output reg   [3:0] HPROTM,       // Protection control
+    output reg   [3:0] HMASTERM,     // Master ID
+    output wire        HMASTLOCKM,   // Locked transfer
+    output wire        HREADYMUXM,   // Transfer done
+    output reg  [3:0]  HWUSERM,     // User data bus
+    output reg  [31:0] HWDATAM       // Write data
 
     );
-
-
-// -----------------------------------------------------------------------------
-// Input and Output declarations
-// -----------------------------------------------------------------------------
-
-    // Common AHB signals
-    input         HCLK;       // AHB system clock
-    input         HRESETn;    // AHB system reset
-
-    // Bus-switch input 0
-    input         sel_op0;       // Port 0 HSEL signal
-    input [31:0]  addr_op0;      // Port 0 HADDR signal
-    input [3:0]  auser_op0;     // Port 0 HAUSER signal
-    input  [1:0]  trans_op0;     // Port 0 HTRANS signal
-    input         write_op0;     // Port 0 HWRITE signal
-    input  [2:0]  size_op0;      // Port 0 HSIZE signal
-    input  [2:0]  burst_op0;     // Port 0 HBURST signal
-    input  [3:0]  prot_op0;      // Port 0 HPROT signal
-    input  [3:0]  master_op0;    // Port 0 HMASTER signal
-    input         mastlock_op0;  // Port 0 HMASTLOCK signal
-    input [31:0]  wdata_op0;     // Port 0 HWDATA signal
-    input [3:0]  wuser_op0;     // Port 0 HWUSER signal
-    input         held_tran_op0;  // Port 0 HeldTran signal
-
-    // Bus-switch input 2
-    input         sel_op2;       // Port 2 HSEL signal
-    input [31:0]  addr_op2;      // Port 2 HADDR signal
-    input [3:0]  auser_op2;     // Port 2 HAUSER signal
-    input  [1:0]  trans_op2;     // Port 2 HTRANS signal
-    input         write_op2;     // Port 2 HWRITE signal
-    input  [2:0]  size_op2;      // Port 2 HSIZE signal
-    input  [2:0]  burst_op2;     // Port 2 HBURST signal
-    input  [3:0]  prot_op2;      // Port 2 HPROT signal
-    input  [3:0]  master_op2;    // Port 2 HMASTER signal
-    input         mastlock_op2;  // Port 2 HMASTLOCK signal
-    input [31:0]  wdata_op2;     // Port 2 HWDATA signal
-    input [3:0]  wuser_op2;     // Port 2 HWUSER signal
-    input         held_tran_op2;  // Port 2 HeldTran signal
-
-    // Bus-switch input 3
-    input         sel_op3;       // Port 3 HSEL signal
-    input [31:0]  addr_op3;      // Port 3 HADDR signal
-    input [3:0]  auser_op3;     // Port 3 HAUSER signal
-    input  [1:0]  trans_op3;     // Port 3 HTRANS signal
-    input         write_op3;     // Port 3 HWRITE signal
-    input  [2:0]  size_op3;      // Port 3 HSIZE signal
-    input  [2:0]  burst_op3;     // Port 3 HBURST signal
-    input  [3:0]  prot_op3;      // Port 3 HPROT signal
-    input  [3:0]  master_op3;    // Port 3 HMASTER signal
-    input         mastlock_op3;  // Port 3 HMASTLOCK signal
-    input [31:0]  wdata_op3;     // Port 3 HWDATA signal
-    input [3:0]  wuser_op3;     // Port 3 HWUSER signal
-    input         held_tran_op3;  // Port 3 HeldTran signal
-
-    input         HREADYOUTM; // HREADY feedback
-
-    output        active_op0;    // Port 0 Active signal
-    output        active_op2;    // Port 2 Active signal
-    output        active_op3;    // Port 3 Active signal
-
-    // Slave Address/Control Signals
-    output        HSELM;      // Slave select line
-    output [31:0] HADDRM;     // Address
-    output [3:0] HAUSERM;    // User Address bus
-    output  [1:0] HTRANSM;    // Transfer type
-    output        HWRITEM;    // Transfer direction
-    output  [2:0] HSIZEM;     // Transfer size
-    output  [2:0] HBURSTM;    // Burst type
-    output  [3:0] HPROTM;     // Protection control
-    output  [3:0] HMASTERM;   // Master ID
-    output        HMASTLOCKM; // Locked transfer
-    output        HREADYMUXM; // Transfer done
-    output [3:0] HWUSERM;    // User data bus
-    output [31:0] HWDATAM;    // Write data
-
-
-// -----------------------------------------------------------------------------
-// Wire declarations
-// -----------------------------------------------------------------------------
-    wire        HCLK;       // AHB system clock
-    wire        HRESETn;    // AHB system reset
-
-    // Bus-switch input 0
-    wire        sel_op0;       // Port 0 HSEL signal
-    wire [31:0] addr_op0;      // Port 0 HADDR signal
-    wire [3:0] auser_op0;     // Port 0 HAUSER signal
-    wire  [1:0] trans_op0;     // Port 0 HTRANS signal
-    wire        write_op0;     // Port 0 HWRITE signal
-    wire  [2:0] size_op0;      // Port 0 HSIZE signal
-    wire  [2:0] burst_op0;     // Port 0 HBURST signal
-    wire  [3:0] prot_op0;      // Port 0 HPROT signal
-    wire  [3:0] master_op0;    // Port 0 HMASTER signal
-    wire        mastlock_op0;  // Port 0 HMASTLOCK signal
-    wire [31:0] wdata_op0;     // Port 0 HWDATA signal
-    wire [3:0] wuser_op0;     // Port 0 HWUSER signal
-    wire        held_tran_op0;  // Port 0 HeldTran signal
-    reg         active_op0;    // Port 0 Active signal
-
-    // Bus-switch input 2
-    wire        sel_op2;       // Port 2 HSEL signal
-    wire [31:0] addr_op2;      // Port 2 HADDR signal
-    wire [3:0] auser_op2;     // Port 2 HAUSER signal
-    wire  [1:0] trans_op2;     // Port 2 HTRANS signal
-    wire        write_op2;     // Port 2 HWRITE signal
-    wire  [2:0] size_op2;      // Port 2 HSIZE signal
-    wire  [2:0] burst_op2;     // Port 2 HBURST signal
-    wire  [3:0] prot_op2;      // Port 2 HPROT signal
-    wire  [3:0] master_op2;    // Port 2 HMASTER signal
-    wire        mastlock_op2;  // Port 2 HMASTLOCK signal
-    wire [31:0] wdata_op2;     // Port 2 HWDATA signal
-    wire [3:0] wuser_op2;     // Port 2 HWUSER signal
-    wire        held_tran_op2;  // Port 2 HeldTran signal
-    reg         active_op2;    // Port 2 Active signal
-
-    // Bus-switch input 3
-    wire        sel_op3;       // Port 3 HSEL signal
-    wire [31:0] addr_op3;      // Port 3 HADDR signal
-    wire [3:0] auser_op3;     // Port 3 HAUSER signal
-    wire  [1:0] trans_op3;     // Port 3 HTRANS signal
-    wire        write_op3;     // Port 3 HWRITE signal
-    wire  [2:0] size_op3;      // Port 3 HSIZE signal
-    wire  [2:0] burst_op3;     // Port 3 HBURST signal
-    wire  [3:0] prot_op3;      // Port 3 HPROT signal
-    wire  [3:0] master_op3;    // Port 3 HMASTER signal
-    wire        mastlock_op3;  // Port 3 HMASTLOCK signal
-    wire [31:0] wdata_op3;     // Port 3 HWDATA signal
-    wire [3:0] wuser_op3;     // Port 3 HWUSER signal
-    wire        held_tran_op3;  // Port 3 HeldTran signal
-    reg         active_op3;    // Port 3 Active signal
-
-    // Slave Address/Control Signals
-    wire        HSELM;      // Slave select line
-    reg  [31:0] HADDRM;     // Address
-    reg  [3:0] HAUSERM;    // User Address bus
-    wire  [1:0] HTRANSM;    // Transfer type
-    reg         HWRITEM;    // Transfer direction
-    reg   [2:0] HSIZEM;     // Transfer size
-    wire  [2:0] HBURSTM;    // Burst type
-    reg   [3:0] HPROTM;     // Protection control
-    reg   [3:0] HMASTERM;   // Master ID
-    wire        HMASTLOCKM; // Locked transfer
-    wire        HREADYMUXM; // Transfer done
-    reg  [3:0] HWUSERM;    // User data bus
-    reg  [31:0] HWDATAM;    // Write data
-    wire        HREADYOUTM; // HREADY feedback
 
 
 // -----------------------------------------------------------------------------
@@ -260,9 +130,10 @@ module ahb_mtx_output_stageTARGFLASH0 (
     wire        req_port0;     // Port 0 request signal
     wire        req_port2;     // Port 2 request signal
     wire        req_port3;     // Port 3 request signal
+    wire        req_port4;     // Port 4 request signal
 
-    wire  [1:0] addr_in_port;   // Address input port
-    reg   [1:0] data_in_port;   // Data input port
+    wire  [2:0] addr_in_port;   // Address input port
+    reg   [2:0] data_in_port;   // Data input port
     wire        no_port;       // No port selected signal
     reg         slave_sel;     // Slave select signal
 
@@ -288,6 +159,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
   assign req_port0 = held_tran_op0 & sel_op0;
   assign req_port2 = held_tran_op2 & sel_op2;
   assign req_port3 = held_tran_op3 & sel_op3;
+  assign req_port4 = held_tran_op4 & sel_op4;
 
   // Arbiter instance for resolving requests to this output stage
   ahb_mtx_arbiterTARGFLASH0 u_output_arb (
@@ -298,6 +170,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
     .req_port0   (req_port0),
     .req_port2   (req_port2),
     .req_port3   (req_port3),
+    .req_port4   (req_port4),
 
     .HREADYM    (i_hreadymuxm),
     .HSELM      (i_hselm),
@@ -318,17 +191,20 @@ module ahb_mtx_output_stageTARGFLASH0 (
       active_op0 = 1'b0;
       active_op2 = 1'b0;
       active_op3 = 1'b0;
+      active_op4 = 1'b0;
 
       // Decode selection when enabled
       if (~no_port)
         case (addr_in_port)
-          2'b00 : active_op0 = 1'b1;
-          2'b10 : active_op2 = 1'b1;
-          2'b11 : active_op3 = 1'b1;
+          3'b000 : active_op0 = 1'b1;
+          3'b010 : active_op2 = 1'b1;
+          3'b011 : active_op3 = 1'b1;
+          3'b100 : active_op4 = 1'b1;
           default : begin
             active_op0 = 1'bx;
             active_op2 = 1'bx;
             active_op3 = 1'bx;
+            active_op4 = 1'bx;
           end
         endcase // case(addr_in_port)
     end // block: p_active_comb
@@ -348,6 +224,10 @@ module ahb_mtx_output_stageTARGFLASH0 (
              size_op3 or burst_op3 or prot_op3 or
              auser_op3 or
              master_op3 or mastlock_op3 or
+             sel_op4 or addr_op4 or trans_op4 or write_op4 or
+             size_op4 or burst_op4 or prot_op4 or
+             auser_op4 or
+             master_op4 or mastlock_op4 or
              addr_in_port or no_port
            )
     begin : p_addr_mux
@@ -367,7 +247,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
       if (~no_port)
         case (addr_in_port)
           // Bus-switch input 0
-          2'b00 :
+          3'b000 :
             begin
               i_hselm     = sel_op0;
               HADDRM      = addr_op0;
@@ -382,7 +262,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
             end // case: 4'b00
 
           // Bus-switch input 2
-          2'b10 :
+          3'b010 :
             begin
               i_hselm     = sel_op2;
               HADDRM      = addr_op2;
@@ -397,7 +277,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
             end // case: 4'b10
 
           // Bus-switch input 3
-          2'b11 :
+          3'b011 :
             begin
               i_hselm     = sel_op3;
               HADDRM      = addr_op3;
@@ -409,6 +289,21 @@ module ahb_mtx_output_stageTARGFLASH0 (
               HPROTM      = prot_op3;
               HMASTERM    = master_op3;
               i_hmastlockm= mastlock_op3;
+            end // case: 4'b11
+
+          // Bus-switch input 4
+          3'b100 :
+            begin
+              i_hselm     = sel_op4;
+              HADDRM      = addr_op4;
+              HAUSERM     = auser_op4;
+              i_htransm   = trans_op4;
+              HWRITEM     = write_op4;
+              HSIZEM      = size_op4;
+              i_hburstm   = burst_op4;
+              HPROTM      = prot_op4;
+              HMASTERM    = master_op4;
+              i_hmastlockm= mastlock_op4;
             end // case: 4'b11
 
           default :
@@ -460,7 +355,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
   always @ (negedge HRESETn or posedge HCLK)
     begin : p_data_in_port_reg
       if (~HRESETn)
-        data_in_port <= {2{1'b0}};
+        data_in_port <= {3{1'b0}};
       else
         if (i_hreadymuxm)
           data_in_port <= addr_in_port;
@@ -471,6 +366,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
              wdata_op0 or
              wdata_op2 or
              wdata_op3 or
+             wdata_op4 or
              data_in_port
            )
     begin : p_data_mux
@@ -479,9 +375,10 @@ module ahb_mtx_output_stageTARGFLASH0 (
 
       // Decode selection
       case (data_in_port)
-        2'b00 : HWDATAM  = wdata_op0;
-        2'b10 : HWDATAM  = wdata_op2;
-        2'b11 : HWDATAM  = wdata_op3;
+        3'b000 : HWDATAM  = wdata_op0;
+        3'b010 : HWDATAM  = wdata_op2;
+        3'b011 : HWDATAM  = wdata_op3;
+        3'b100 : HWDATAM  = wdata_op4;
         default : HWDATAM = {32{1'bx}};
       endcase // case(data_in_port)
     end // block: p_data_mux
@@ -491,6 +388,7 @@ module ahb_mtx_output_stageTARGFLASH0 (
              wuser_op0 or
              wuser_op2 or
              wuser_op3 or
+             wuser_op4 or
              data_in_port
            )
     begin : p_wuser_mux
@@ -499,9 +397,10 @@ module ahb_mtx_output_stageTARGFLASH0 (
 
       // Decode selection
       case (data_in_port)
-        2'b00 : HWUSERM  = wuser_op0;
-        2'b10 : HWUSERM  = wuser_op2;
-        2'b11 : HWUSERM  = wuser_op3;
+        3'b000 : HWUSERM  = wuser_op0;
+        3'b010 : HWUSERM  = wuser_op2;
+        3'b011 : HWUSERM  = wuser_op3;
+        3'b100 : HWUSERM  = wuser_op4;
         default : HWUSERM  = {4{1'bx}};
       endcase // case(data_in_port)
     end // block: p_wuser_mux

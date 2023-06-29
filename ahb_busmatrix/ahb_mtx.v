@@ -1257,7 +1257,7 @@ module ahb_mtx (
   wire [ 3:0] i_auser4;  // HAUSER signal
 
   // Input stage for SI4
-  ahb_mtx_input_stage u_ahb_mtx_input_stage_3 (
+  ahb_mtx_input_stage u_ahb_mtx_input_stage_4 (
 
       // Common AHB signals
       .HCLK   (HCLK),
@@ -1747,12 +1747,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to0),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGFLASH0),
 
       .active_op0(i_active0to0),
       .active_op2(i_active2to0),
       .active_op3(i_active3to0),
+      .active_op4(i_active4to0),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGFLASH0),
@@ -1776,7 +1792,7 @@ module ahb_mtx (
 
 
   // Output stage for MI1
-  ahb_mtx_output_stageTARGSRAM0 u_ahb_mtx_output_stagetargsram0_1 (
+  ahb_mtx_output_stageTARGSRAM u_ahb_mtx_output_stagetargsram0_1 (
 
       // Common AHB signals
       .HCLK   (HCLK),
@@ -1827,12 +1843,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to1),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGSRAM0),
 
       .active_op1(i_active1to1),
       .active_op2(i_active2to1),
       .active_op3(i_active3to1),
+      .active_op4(i_active4to1),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGSRAM0),
@@ -1856,7 +1888,7 @@ module ahb_mtx (
 
 
   // Output stage for MI2
-  ahb_mtx_output_stageTARGSRAM1 u_ahb_mtx_output_stagetargsram1_2 (
+  ahb_mtx_output_stageTARGSRAM u_ahb_mtx_output_stagetargsram1_2 (
 
       // Common AHB signals
       .HCLK   (HCLK),
@@ -1907,12 +1939,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to2),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGSRAM1),
 
       .active_op1(i_active1to2),
       .active_op2(i_active2to2),
       .active_op3(i_active3to2),
+      .active_op4(i_active4to2),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGSRAM1),
@@ -1936,7 +1984,7 @@ module ahb_mtx (
 
 
   // Output stage for MI3
-  ahb_mtx_output_stageTARGSRAM2 u_ahb_mtx_output_stagetargsram2_3 (
+  ahb_mtx_output_stageTARGSRAM u_ahb_mtx_output_stagetargsram2_3 (
 
       // Common AHB signals
       .HCLK   (HCLK),
@@ -1987,12 +2035,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to3),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGSRAM2),
 
       .active_op1(i_active1to3),
       .active_op2(i_active2to3),
       .active_op3(i_active3to3),
+      .active_op4(i_active4to3),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGSRAM2),
@@ -2016,7 +2080,7 @@ module ahb_mtx (
 
 
   // Output stage for MI4
-  ahb_mtx_output_stageTARGSRAM3 u_ahb_mtx_output_stagetargsram3_4 (
+  ahb_mtx_output_stageTARGSRAM u_ahb_mtx_output_stagetargsram3_4 (
 
       // Common AHB signals
       .HCLK   (HCLK),
@@ -2067,12 +2131,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to4),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGSRAM3),
 
       .active_op1(i_active1to4),
       .active_op2(i_active2to4),
       .active_op3(i_active3to4),
+      .active_op4(i_active4to4),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGSRAM3),
@@ -2147,12 +2227,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to5),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGAPB0),
 
       .active_op1(i_active1to5),
       .active_op2(i_active2to5),
       .active_op3(i_active3to5),
+      .active_op4(i_active4to5),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGAPB0),
@@ -2227,12 +2323,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to6),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGEXP0),
 
       .active_op1(i_active1to6),
       .active_op2(i_active2to6),
       .active_op3(i_active3to6),
+      .active_op4(i_active4to6),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGEXP0),
@@ -2261,21 +2373,6 @@ module ahb_mtx (
       // Common AHB signals
       .HCLK   (HCLK),
       .HRESETn(HRESETn),
-
-      // Port 0 Signals
-      .sel_op0      (i_sel0to7),
-      .addr_op0     (i_addr0),
-      .auser_op0    (i_auser0),
-      .trans_op0    (i_trans0),
-      .write_op0    (i_write0),
-      .size_op0     (i_size0),
-      .burst_op0    (i_burst0),
-      .prot_op0     (i_prot0),
-      .master_op0   (i_master0),
-      .mastlock_op0 (i_mastlock0),
-      .wdata_op0    (HWDATAINITCM3DI),
-      .wuser_op0    (HWUSERINITCM3DI),
-      .held_tran_op0(i_held_tran0),
 
       // Port 1 Signals
       .sel_op1      (i_sel1to7),
@@ -2322,13 +2419,28 @@ module ahb_mtx (
       .wuser_op3    (HWUSERINITEXP1),
       .held_tran_op3(i_held_tran3),
 
+      // Port 4 Signals
+      .sel_op4      (i_sel4to7),
+      .addr_op4     (i_addr4),
+      .auser_op4    (i_auser4),
+      .trans_op4    (i_trans4),
+      .write_op4    (i_write4),
+      .size_op4     (i_size4),
+      .burst_op4    (i_burst4),
+      .prot_op4     (i_prot4),
+      .master_op4   (i_master4),
+      .mastlock_op4 (i_mastlock4),
+      .wdata_op4    (HWDATAINITEXP2),
+      .wuser_op4    (HWUSERINITEXP2),
+      .held_tran_op4(i_held_tran4),
+
       // Slave read data and response
       .HREADYOUTM(HREADYOUTTARGEXP1),
 
-      .active_op0(i_active0to7),
       .active_op1(i_active1to7),
       .active_op2(i_active2to7),
       .active_op3(i_active3to7),
+      .active_op4(i_active4to7),
 
       // Slave Address/Control Signals
       .HSELM     (HSELTARGEXP1),

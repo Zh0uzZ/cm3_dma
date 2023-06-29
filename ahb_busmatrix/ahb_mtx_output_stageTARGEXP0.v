@@ -83,12 +83,28 @@ module ahb_mtx_output_stageTARGEXP0 (
     wuser_op3,
     held_tran_op3,
 
+    // Port 4 Signals
+    sel_op4,
+    addr_op4,
+    auser_op4,
+    trans_op4,
+    write_op4,
+    size_op4,
+    burst_op4,
+    prot_op4,
+    master_op4,
+    mastlock_op4,
+    wdata_op4,
+    wuser_op4,
+    held_tran_op4,
+
     // Slave read data and response
     HREADYOUTM,
 
     active_op1,
     active_op2,
     active_op3,
+    active_op4,
 
     // Slave Address/Control Signals
     HSELM,
@@ -161,11 +177,27 @@ module ahb_mtx_output_stageTARGEXP0 (
     input [3:0]  wuser_op3;     // Port 3 HWUSER signal
     input         held_tran_op3;  // Port 3 HeldTran signal
 
+    // Bus-switch input 4
+    input         sel_op4;       // Port 4 HSEL signal
+    input [31:0]  addr_op4;      // Port 4 HADDR signal
+    input [3:0]  auser_op4;      // Port 4 HAUSER signal
+    input  [1:0]  trans_op4;     // Port 4 HTRANS signal
+    input         write_op4;     // Port 4 HWRITE signal
+    input  [2:0]  size_op4;      // Port 4 HSIZE signal
+    input  [2:0]  burst_op4;     // Port 4 HBURST signal
+    input  [3:0]  prot_op4;      // Port 4 HPROT signal
+    input  [3:0]  master_op4;    // Port 4 HMASTER signal
+    input         mastlock_op4;  // Port 4 HMASTLOCK signal
+    input [31:0]  wdata_op4;     // Port 4 HWDATA signal
+    input [3:0]  wuser_op4;      // Port 4 HWUSER signal
+    input         held_tran_op4;  // Port 4 HeldTran signal
+
     input         HREADYOUTM; // HREADY feedback
 
     output        active_op1;    // Port 1 Active signal
     output        active_op2;    // Port 2 Active signal
     output        active_op3;    // Port 3 Active signal
+    output        active_op4;    // Port 4 Active signal
 
     // Slave Address/Control Signals
     output        HSELM;      // Slave select line
@@ -237,6 +269,22 @@ module ahb_mtx_output_stageTARGEXP0 (
     wire        held_tran_op3;  // Port 3 HeldTran signal
     reg         active_op3;    // Port 3 Active signal
 
+    // Bus-switch input 4
+    wire        sel_op4;       // Port 4 HSEL signal
+    wire [31:0] addr_op4;      // Port 4 HADDR signal
+    wire [3:0] auser_op4;      // Port 4 HAUSER signal
+    wire  [1:0] trans_op4;     // Port 4 HTRANS signal
+    wire        write_op4;     // Port 4 HWRITE signal
+    wire  [2:0] size_op4;      // Port 4 HSIZE signal
+    wire  [2:0] burst_op4;     // Port 4 HBURST signal
+    wire  [3:0] prot_op4;      // Port 4 HPROT signal
+    wire  [3:0] master_op4;    // Port 4 HMASTER signal
+    wire        mastlock_op4;  // Port 4 HMASTLOCK signal
+    wire [31:0] wdata_op4;     // Port 4 HWDATA signal
+    wire [3:0] wuser_op4;      // Port 4 HWUSER signal
+    wire        held_tran_op4; // Port 4 HeldTran signal
+    reg         active_op4;    // Port 4 Active signal
+
     // Slave Address/Control Signals
     wire        HSELM;      // Slave select line
     reg  [31:0] HADDRM;     // Address
@@ -260,9 +308,10 @@ module ahb_mtx_output_stageTARGEXP0 (
     wire        req_port1;     // Port 1 request signal
     wire        req_port2;     // Port 2 request signal
     wire        req_port3;     // Port 3 request signal
+    wire        req_port4;     // Port 4 request signal
 
-    wire  [1:0] addr_in_port;   // Address input port
-    reg   [1:0] data_in_port;   // Data input port
+    wire  [2:0] addr_in_port;   // Address input port
+    reg   [2:0] data_in_port;   // Data input port
     wire        no_port;       // No port selected signal
     reg         slave_sel;     // Slave select signal
 
@@ -288,6 +337,7 @@ module ahb_mtx_output_stageTARGEXP0 (
   assign req_port1 = held_tran_op1 & sel_op1;
   assign req_port2 = held_tran_op2 & sel_op2;
   assign req_port3 = held_tran_op3 & sel_op3;
+  assign req_port4 = held_tran_op4 & sel_op4;
 
   // Arbiter instance for resolving requests to this output stage
   ahb_mtx_arbiterTARGEXP0 u_output_arb (
@@ -298,6 +348,7 @@ module ahb_mtx_output_stageTARGEXP0 (
     .req_port1   (req_port1),
     .req_port2   (req_port2),
     .req_port3   (req_port3),
+    .req_port4   (req_port4),
 
     .HREADYM    (i_hreadymuxm),
     .HSELM      (i_hselm),
@@ -318,17 +369,20 @@ module ahb_mtx_output_stageTARGEXP0 (
       active_op1 = 1'b0;
       active_op2 = 1'b0;
       active_op3 = 1'b0;
+      active_op4 = 1'b0;
 
       // Decode selection when enabled
       if (~no_port)
         case (addr_in_port)
-          2'b01 : active_op1 = 1'b1;
-          2'b10 : active_op2 = 1'b1;
-          2'b11 : active_op3 = 1'b1;
+          3'b001 : active_op1 = 1'b1;
+          3'b010 : active_op2 = 1'b1;
+          3'b011 : active_op3 = 1'b1;
+          3'b100 : active_op4 = 1'b1;
           default : begin
             active_op1 = 1'bx;
             active_op2 = 1'bx;
             active_op3 = 1'bx;
+            active_op4 = 1'bx;
           end
         endcase // case(addr_in_port)
     end // block: p_active_comb
@@ -348,6 +402,10 @@ module ahb_mtx_output_stageTARGEXP0 (
              size_op3 or burst_op3 or prot_op3 or
              auser_op3 or
              master_op3 or mastlock_op3 or
+             sel_op4 or addr_op4 or trans_op4 or write_op4 or
+             size_op4 or burst_op4 or prot_op4 or
+             auser_op4 or
+             master_op4 or mastlock_op4 or
              addr_in_port or no_port
            )
     begin : p_addr_mux
@@ -367,7 +425,7 @@ module ahb_mtx_output_stageTARGEXP0 (
       if (~no_port)
         case (addr_in_port)
           // Bus-switch input 1
-          2'b01 :
+          3'b001 :
             begin
               i_hselm     = sel_op1;
               HADDRM      = addr_op1;
@@ -382,7 +440,7 @@ module ahb_mtx_output_stageTARGEXP0 (
             end // case: 4'b01
 
           // Bus-switch input 2
-          2'b10 :
+          3'b010 :
             begin
               i_hselm     = sel_op2;
               HADDRM      = addr_op2;
@@ -397,7 +455,7 @@ module ahb_mtx_output_stageTARGEXP0 (
             end // case: 4'b10
 
           // Bus-switch input 3
-          2'b11 :
+          3'b011 :
             begin
               i_hselm     = sel_op3;
               HADDRM      = addr_op3;
@@ -409,6 +467,21 @@ module ahb_mtx_output_stageTARGEXP0 (
               HPROTM      = prot_op3;
               HMASTERM    = master_op3;
               i_hmastlockm= mastlock_op3;
+            end // case: 4'b11
+
+          // Bus-switch input 4
+          3'b100 :
+            begin
+              i_hselm     = sel_op4;
+              HADDRM      = addr_op4;
+              HAUSERM     = auser_op4;
+              i_htransm   = trans_op4;
+              HWRITEM     = write_op4;
+              HSIZEM      = size_op4;
+              i_hburstm   = burst_op4;
+              HPROTM      = prot_op4;
+              HMASTERM    = master_op4;
+              i_hmastlockm= mastlock_op4;
             end // case: 4'b11
 
           default :
@@ -460,7 +533,7 @@ module ahb_mtx_output_stageTARGEXP0 (
   always @ (negedge HRESETn or posedge HCLK)
     begin : p_data_in_port_reg
       if (~HRESETn)
-        data_in_port <= {2{1'b0}};
+        data_in_port <= {3{1'b0}};
       else
         if (i_hreadymuxm)
           data_in_port <= addr_in_port;
@@ -471,6 +544,7 @@ module ahb_mtx_output_stageTARGEXP0 (
              wdata_op1 or
              wdata_op2 or
              wdata_op3 or
+             wdata_op4 or
              data_in_port
            )
     begin : p_data_mux
@@ -479,9 +553,10 @@ module ahb_mtx_output_stageTARGEXP0 (
 
       // Decode selection
       case (data_in_port)
-        2'b01 : HWDATAM  = wdata_op1;
-        2'b10 : HWDATAM  = wdata_op2;
-        2'b11 : HWDATAM  = wdata_op3;
+        3'b001 : HWDATAM  = wdata_op1;
+        3'b010 : HWDATAM  = wdata_op2;
+        3'b011 : HWDATAM  = wdata_op3;
+        3'b100 : HWDATAM  = wdata_op4;
         default : HWDATAM = {32{1'bx}};
       endcase // case(data_in_port)
     end // block: p_data_mux
@@ -491,6 +566,7 @@ module ahb_mtx_output_stageTARGEXP0 (
              wuser_op1 or
              wuser_op2 or
              wuser_op3 or
+             wuser_op4 or
              data_in_port
            )
     begin : p_wuser_mux
@@ -499,9 +575,10 @@ module ahb_mtx_output_stageTARGEXP0 (
 
       // Decode selection
       case (data_in_port)
-        2'b01 : HWUSERM  = wuser_op1;
-        2'b10 : HWUSERM  = wuser_op2;
-        2'b11 : HWUSERM  = wuser_op3;
+        3'b001 : HWUSERM  = wuser_op1;
+        3'b010 : HWUSERM  = wuser_op2;
+        3'b011 : HWUSERM  = wuser_op3;
+        3'b100 : HWUSERM  = wuser_op4;
         default : HWUSERM  = {4{1'bx}};
       endcase // case(data_in_port)
     end // block: p_wuser_mux
