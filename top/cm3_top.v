@@ -34,6 +34,8 @@
 // Verilog-2001 (IEEE Std 1364-2001)
 // -----------------------------------------------------------------------------
 
+`define ROM_FILENAME "/home/hank/workspace/vivado/CM3/vivado/cm3_dma/cm3_dma/cm3_dma.sim/sim_1/behav/xsim/soc.hex"
+
 module cm3_top #(
 
   parameter WIC_LINES        = 67)                                    // Static in Designstart
@@ -90,11 +92,6 @@ module cm3_top #(
                                                                       // The PCLKG must be synchronous to FLSHCLK whenever the two
                                                                       // clocks are on at the same time.
 
-  input  wire                                 SRAM0HCLK,              // AHB clock of the SRAM bridge 0
-  input  wire                                 SRAM1HCLK,              // AHB clock of the SRAM bridge 1
-  input  wire                                 SRAM2HCLK,              // AHB clock of the SRAM bridge 2
-  input  wire                                 SRAM3HCLK,              // AHB clock of the SRAM bridge 3
-
   input  wire                                 MTXHCLK,                // AHB Matrix interconnect Clock
   input  wire                                 MTXHRESETn,             // AHB Matrix interconnect Reset.
                                                                       // AHB to APB bridge Reset
@@ -117,33 +114,6 @@ module cm3_top #(
                                                                       // to peripheral register logic to stop when there is no APB
                                                                       // activity
   input  wire                                 TIMER1PRESETn,          // Deassert the reset synchronously to TIMER1PCLK
-
-  // ----------------------------------------------------------------------------
-  // AHB2SRAM<0..3> Interfaces
-  // ----------------------------------------------------------------------------
-  input  wire [31:0]                          SRAM0RDATA,             // SRAM Read data bus
-  output wire [12:0]                          SRAM0ADDR,              // SRAM address
-  output wire [3:0]                           SRAM0WREN,              // SRAM Byte write enable
-  output wire [31:0]                          SRAM0WDATA,             // SRAM Write data
-  output wire                                 SRAM0CS,                // SRAM Chip select
-
-  input  wire [31:0]                          SRAM1RDATA,             // SRAM Read data bus
-  output wire [12:0]                          SRAM1ADDR,              // SRAM address
-  output wire [3:0]                           SRAM1WREN,              // SRAM Byte write enable
-  output wire [31:0]                          SRAM1WDATA,             // SRAM Write data
-  output wire                                 SRAM1CS,                // SRAM Chip select
-
-  input  wire [31:0]                          SRAM2RDATA,             // SRAM Read data bus
-  output wire [12:0]                          SRAM2ADDR,              // SRAM address
-  output wire [3:0]                           SRAM2WREN,              // SRAM Byte write enable
-  output wire [31:0]                          SRAM2WDATA,             // SRAM Write data
-  output wire                                 SRAM2CS,                // SRAM Chip select
-
-  input  wire [31:0]                          SRAM3RDATA,             // SRAM Read data bus
-  output wire [12:0]                          SRAM3ADDR,              // SRAM address
-  output wire [3:0]                           SRAM3WREN,              // SRAM Byte write enable
-  output wire [31:0]                          SRAM3WDATA,             // SRAM Write data
-  output wire                                 SRAM3CS,                // SRAM Chip select
 
   // ----------------------------------------------------------------------------
   // Timer<0..1> Interfaces
@@ -169,27 +139,50 @@ module cm3_top #(
   // ----------------------------------------------------------------------------
   // AHB Target Expansion ports
   // ----------------------------------------------------------------------------
+
   //  amba.com/AMBA3/AHBLite/r2p0_0, TARGFLASH0, master
-  output wire                                 TARGFLASH0HSEL,         // TARGFLASH0, HSELx,
-  output wire [31:0]                          TARGFLASH0HADDR,        // TARGFLASH0, HADDR,
-  output wire [1:0]                           TARGFLASH0HTRANS,       // TARGFLASH0, HTRANS,
-  output wire                                 TARGFLASH0HWRITE,       // TARGFLASH0, HWRITE,
-  output wire [2:0]                           TARGFLASH0HSIZE,        // TARGFLASH0, HSIZE,
-  output wire [2:0]                           TARGFLASH0HBURST,       // TARGFLASH0, HBURST,
-  output wire [3:0]                           TARGFLASH0HPROT,        // TARGFLASH0, HPROT,
-  output wire [1:0]                           TARGFLASH0MEMATTR,
-  output wire                                 TARGFLASH0EXREQ,
-  output wire [3:0]                           TARGFLASH0HMASTER,
-  output wire [31:0]                          TARGFLASH0HWDATA,       // TARGFLASH0, HWDATA,
-  output wire                                 TARGFLASH0HMASTLOCK,    // TARGFLASH0, HMASTLOCK,
-  output wire                                 TARGFLASH0HREADYMUX,    // TARGFLASH0, HREADYOUT,
-  output wire                                 TARGFLASH0HAUSER,       // TARGFLASH0, HAUSER,
-  output wire [3:0]                           TARGFLASH0HWUSER,       // TARGFLASH0, HWUSER,
-  input  wire [31:0]                          TARGFLASH0HRDATA,       // TARGFLASH0, HRDATA,
-  input  wire                                 TARGFLASH0HREADYOUT,    // TARGFLASH0, HREADY,
-  input  wire                                 TARGFLASH0HRESP,        // TARGFLASH0, HRESP,
-  input  wire                                 TARGFLASH0EXRESP,
-  input  wire [2:0]                           TARGFLASH0HRUSER,       // TARGFLASH0, HRUSER,
+  output wire                                 TARGSRAM2HSEL,         // TARGSRAM2, HSELx,
+  output wire [31:0]                          TARGSRAM2HADDR,        // TARGSRAM2, HADDR,
+  output wire [1:0]                           TARGSRAM2HTRANS,       // TARGSRAM2, HTRANS,
+  output wire                                 TARGSRAM2HWRITE,       // TARGSRAM2, HWRITE,
+  output wire [2:0]                           TARGSRAM2HSIZE,        // TARGSRAM2, HSIZE,
+  output wire [2:0]                           TARGSRAM2HBURST,       // TARGSRAM2, HBURST,
+  output wire [3:0]                           TARGSRAM2HPROT,        // TARGSRAM2, HPROT,
+  output wire [1:0]                           TARGSRAM2MEMATTR,
+  output wire                                 TARGSRAM2EXREQ,
+  output wire [3:0]                           TARGSRAM2HMASTER,
+  output wire [31:0]                          TARGSRAM2HWDATA,       // TARGSRAM2, HWDATA,
+  output wire                                 TARGSRAM2HMASTLOCK,    // TARGSRAM2, HMASTLOCK,
+  output wire                                 TARGSRAM2HREADYMUX,    // TARGSRAM2, HREADYOUT,
+  output wire                                 TARGSRAM2HAUSER,       // TARGSRAM2, HAUSER,
+  output wire [3:0]                           TARGSRAM2HWUSER,       // TARGSRAM2, HWUSER,
+  input  wire [31:0]                          TARGSRAM2HRDATA,       // TARGSRAM2, HRDATA,
+  input  wire                                 TARGSRAM2HREADYOUT,    // TARGSRAM2, HREADY,
+  input  wire                                 TARGSRAM2HRESP,        // TARGSRAM2, HRESP,
+  input  wire                                 TARGSRAM2EXRESP,
+  input  wire [2:0]                           TARGSRAM2HRUSER,       // TARGSRAM2, HRUSER,
+
+  //  amba.com/AMBA3/AHBLite/r2p0_0, TARGFLASH0, master
+  output wire                                 TARGSRAM3HSEL,         // TARGSRAM3, HSELx,
+  output wire [31:0]                          TARGSRAM3HADDR,        // TARGSRAM3, HADDR,
+  output wire [1:0]                           TARGSRAM3HTRANS,       // TARGSRAM3, HTRANS,
+  output wire                                 TARGSRAM3HWRITE,       // TARGSRAM3, HWRITE,
+  output wire [2:0]                           TARGSRAM3HSIZE,        // TARGSRAM3, HSIZE,
+  output wire [2:0]                           TARGSRAM3HBURST,       // TARGSRAM3, HBURST,
+  output wire [3:0]                           TARGSRAM3HPROT,        // TARGSRAM3, HPROT,
+  output wire [1:0]                           TARGSRAM3MEMATTR,
+  output wire                                 TARGSRAM3EXREQ,
+  output wire [3:0]                           TARGSRAM3HMASTER,
+  output wire [31:0]                          TARGSRAM3HWDATA,       // TARGSRAM3, HWDATA,
+  output wire                                 TARGSRAM3HMASTLOCK,    // TARGSRAM3, HMASTLOCK,
+  output wire                                 TARGSRAM3HREADYMUX,    // TARGSRAM3, HREADYOUT,
+  output wire                                 TARGSRAM3HAUSER,       // TARGSRAM3, HAUSER,
+  output wire [3:0]                           TARGSRAM3HWUSER,       // TARGSRAM3, HWUSER,
+  input  wire [31:0]                          TARGSRAM3HRDATA,       // TARGSRAM3, HRDATA,
+  input  wire                                 TARGSRAM3HREADYOUT,    // TARGSRAM3, HREADY,
+  input  wire                                 TARGSRAM3HRESP,        // TARGSRAM3, HRESP,
+  input  wire                                 TARGSRAM3EXRESP,
+  input  wire [2:0]                           TARGSRAM3HRUSER,       // TARGSRAM3, HRUSER,
 
   //  amba.com/AMBA3/AHBLite/r2p0_0, TARGEXP0, master
   output wire                                 TARGEXP0HSEL,           // TARGEXP0, HSELx,
@@ -742,6 +735,26 @@ module cm3_top #(
   // Control port
   wire    [3:0] mtxremap_int;
 
+  wire          TARGFLASH0HSEL;         
+  wire [31:0]   TARGFLASH0HADDR;        
+  wire [1:0]    TARGFLASH0HTRANS;       
+  wire          TARGFLASH0HWRITE;       
+  wire [2:0]    TARGFLASH0HSIZE;        
+  wire [2:0]    TARGFLASH0HBURST;       
+  wire [3:0]    TARGFLASH0HPROT;        
+  wire [1:0]    TARGFLASH0MEMATTR;
+  wire          TARGFLASH0EXREQ;
+  wire [3:0]    TARGFLASH0HMASTER;
+  wire [31:0]   TARGFLASH0HWDATA;       
+  wire          TARGFLASH0HMASTLOCK;    
+  wire          TARGFLASH0HREADYMUX;    
+  wire          TARGFLASH0HAUSER;       
+  wire [3:0]    TARGFLASH0HWUSER;       
+  wire [31:0]   TARGFLASH0HRDATA;       
+  wire          TARGFLASH0HREADYOUT;    
+  wire          TARGFLASH0HRESP;        
+  wire          TARGFLASH0EXRESP;
+  wire [2:0]    TARGFLASH0HRUSER;       
   // AHB MTX (<-> SRAM0)
   wire          targsram0hsel;
   wire   [31:0] targsram0haddr;
@@ -772,35 +785,6 @@ module cm3_top #(
 
   wire    [2:0] targsram1hruser_int;
 
-  // AHB MTX (<-> SRAM2)
-  wire          targsram2hsel;
-  wire   [31:0] targsram2haddr;
-  wire    [1:0] targsram2htrans;
-  wire          targsram2hwrite;
-  wire    [2:0] targsram2hsize;
-  wire   [31:0] targsram2hwdata;
-  wire          targsram2hreadymux;
-  wire          targsram2hreadyout;
-  wire   [31:0] targsram2hrdata;
-  wire          targsram2hresp;
-  wire          targsram2exresp_int;
-
-  wire    [2:0] targsram2hruser_int;
-
-  // AHB MTX (<-> SRAM3)
-  wire          targsram3hsel;
-  wire   [31:0] targsram3haddr;
-  wire    [1:0] targsram3htrans;
-  wire          targsram3hwrite;
-  wire    [2:0] targsram3hsize;
-  wire   [31:0] targsram3hwdata;
-  wire          targsram3hreadymux;
-  wire          targsram3hreadyout;
-  wire   [31:0] targsram3hrdata;
-  wire          targsram3hresp;
-  wire          targsram3exresp_int;
-
-  wire    [2:0] targsram3hruser_int;
 
   // AHB MTX (Test signals not used in RTL)
   wire          mtxscanenable_int;
@@ -1071,47 +1055,47 @@ module cm3_top #(
     .TARGSRAM1HWUSER      (/*Not supported*/),
     .TARGSRAM1HRUSER      (targsram1hruser_int),
 
-    .TARGSRAM2HSEL        (targsram2hsel),
-    .TARGSRAM2HADDR       (targsram2haddr),
-    .TARGSRAM2HTRANS      (targsram2htrans),
-    .TARGSRAM2HMASTER     (/*Not supported*/),
-    .TARGSRAM2HWRITE      (targsram2hwrite),
-    .TARGSRAM2HSIZE       (targsram2hsize),
-    .TARGSRAM2HMASTLOCK   (/*Not supported*/),
-    .TARGSRAM2HWDATA      (targsram2hwdata),
-    .TARGSRAM2HBURST      (/*Not supported*/),
-    .TARGSRAM2HPROT       (/*Not supported*/),
-    .TARGSRAM2MEMATTR     (/*Not supported*/),
-    .TARGSRAM2EXREQ       (/*Not supported*/),
-    .TARGSRAM2HREADYMUX   (targsram2hreadymux),
-    .TARGSRAM2HREADYOUT   (targsram2hreadyout),
-    .TARGSRAM2HRDATA      (targsram2hrdata),
-    .TARGSRAM2HRESP       (targsram2hresp),
-    .TARGSRAM2EXRESP      (targsram2exresp_int),
-    .TARGSRAM2HAUSER      (/*Not supported*/),
-    .TARGSRAM2HWUSER      (/*Not supported*/),
-    .TARGSRAM2HRUSER      (targsram2hruser_int),
+    .TARGSRAM2HSEL        (TARGSRAM2HSEL     ),
+    .TARGSRAM2HADDR       (TARGSRAM2HADDR    ),
+    .TARGSRAM2HTRANS      (TARGSRAM2HTRANS   ),
+    .TARGSRAM2HMASTER     (TARGSRAM2HMASTER  ),
+    .TARGSRAM2HWRITE      (TARGSRAM2HWRITE   ),
+    .TARGSRAM2HSIZE       (TARGSRAM2HSIZE    ),
+    .TARGSRAM2HMASTLOCK   (TARGSRAM2HMASTLOCK),
+    .TARGSRAM2HWDATA      (TARGSRAM2HWDATA   ),
+    .TARGSRAM2HBURST      (TARGSRAM2HBURST   ),
+    .TARGSRAM2HPROT       (TARGSRAM2HPROT    ),
+    .TARGSRAM2MEMATTR     (TARGSRAM2MEMATTR  ),
+    .TARGSRAM2EXREQ       (TARGSRAM2EXREQ    ),
+    .TARGSRAM2HREADYMUX   (TARGSRAM2HREADYMUX),
+    .TARGSRAM2HREADYOUT   (TARGSRAM2HREADYOUT),
+    .TARGSRAM2HRDATA      (TARGSRAM2HRDATA   ),
+    .TARGSRAM2HRESP       (TARGSRAM2HRESP    ),
+    .TARGSRAM2EXRESP      (TARGSRAM2EXRESP   ),
+    .TARGSRAM2HAUSER      (TARGSRAM2HAUSER   ),
+    .TARGSRAM2HWUSER      (TARGSRAM2HWUSER   ),
+    .TARGSRAM2HRUSER      (TARGSRAM2HRUSER   ),
 
-    .TARGSRAM3HSEL        (targsram3hsel),
-    .TARGSRAM3HADDR       (targsram3haddr),
-    .TARGSRAM3HTRANS      (targsram3htrans),
-    .TARGSRAM3HMASTER     (/*Not supported*/),
-    .TARGSRAM3HWRITE      (targsram3hwrite),
-    .TARGSRAM3HSIZE       (targsram3hsize),
-    .TARGSRAM3HMASTLOCK   (/*Not supported*/),
-    .TARGSRAM3HWDATA      (targsram3hwdata),
-    .TARGSRAM3HBURST      (/*Not supported*/),
-    .TARGSRAM3HPROT       (/*Not supported*/),
-    .TARGSRAM3MEMATTR     (/*Not supported*/),
-    .TARGSRAM3EXREQ       (/*Not supported*/),
-    .TARGSRAM3HREADYMUX   (targsram3hreadymux),
-    .TARGSRAM3HREADYOUT   (targsram3hreadyout),
-    .TARGSRAM3HRDATA      (targsram3hrdata),
-    .TARGSRAM3HRESP       (targsram3hresp),
-    .TARGSRAM3EXRESP      (targsram3exresp_int),
-    .TARGSRAM3HAUSER      (/*Not supported*/),
-    .TARGSRAM3HWUSER      (/*Not supported*/),
-    .TARGSRAM3HRUSER      (targsram3hruser_int),
+    .TARGSRAM3HSEL        (TARGSRAM3HSEL     ),
+    .TARGSRAM3HADDR       (TARGSRAM3HADDR    ),
+    .TARGSRAM3HTRANS      (TARGSRAM3HTRANS   ),
+    .TARGSRAM3HMASTER     (TARGSRAM3HMASTER  ),
+    .TARGSRAM3HWRITE      (TARGSRAM3HWRITE   ),
+    .TARGSRAM3HSIZE       (TARGSRAM3HSIZE    ),
+    .TARGSRAM3HMASTLOCK   (TARGSRAM3HMASTLOCK),
+    .TARGSRAM3HWDATA      (TARGSRAM3HWDATA   ),
+    .TARGSRAM3HBURST      (TARGSRAM3HBURST   ),
+    .TARGSRAM3HPROT       (TARGSRAM3HPROT    ),
+    .TARGSRAM3MEMATTR     (TARGSRAM3MEMATTR  ),
+    .TARGSRAM3EXREQ       (TARGSRAM3EXREQ    ),
+    .TARGSRAM3HREADYMUX   (TARGSRAM3HREADYMUX),
+    .TARGSRAM3HREADYOUT   (TARGSRAM3HREADYOUT),
+    .TARGSRAM3HRDATA      (TARGSRAM3HRDATA   ),
+    .TARGSRAM3HRESP       (TARGSRAM3HRESP    ),
+    .TARGSRAM3EXRESP      (TARGSRAM3EXRESP   ),
+    .TARGSRAM3HAUSER      (TARGSRAM3HAUSER   ),
+    .TARGSRAM3HWUSER      (TARGSRAM3HWUSER   ),
+    .TARGSRAM3HRUSER      (TARGSRAM3HRUSER   ),
 
     .SCANENABLE           (mtxscanenable_int),
     .SCANINHCLK           (mtxscaninhclk_int),
@@ -1503,6 +1487,72 @@ module cm3_top #(
   );
 
 
+  // --------------------------------------------------------------------
+  // SRAM to replace FLASH in FPGA
+  // --------------------------------------------------------------------
+  // module instantiation
+
+  AHB2MEM #(
+      .MEMWIDTH(16),
+      .INIT    (1),
+      .FILENAME(`ROM_FILENAME)
+  ) uAHB2ROM (
+      .HCLK     (MTXHCLK),
+      .HRESETn  (MTXHRESETn),
+      .HSEL     (TARGFLASH0HSEL),
+      .HREADY   (TARGFLASH0HREADYMUX),
+      .HADDR    (TARGFLASH0HADDR),
+      .HTRANS   (TARGFLASH0HTRANS),
+      .HWRITE   (TARGFLASH0HWRITE),
+      .HSIZE    (TARGFLASH0HSIZE),
+      .HWDATA   (TARGFLASH0HWDATA),
+      .HRDATA   (TARGFLASH0HRDATA),
+      .HREADYOUT(TARGFLASH0HREADYOUT) 
+  );
+
+  // Wires for IoT subsystem memories
+
+  wire         SRAMHRESETn;
+
+  wire         SRAM0HCLK;
+  wire [ 31:0] SRAM0RDATA;  // SRAM Read data bus
+  wire [ 12:0] SRAM0ADDR;  // SRAM address
+  wire [  3:0] SRAM0WREN;  // SRAM Byte write enable
+  wire [ 31:0] SRAM0WDATA;  // SRAM Write data
+  wire         SRAM0CS;  // SRAM Chip select
+
+  wire         SRAM1HCLK;
+  wire [ 31:0] SRAM1RDATA;  // SRAM Read data bus
+  wire [ 12:0] SRAM1ADDR;  // SRAM address
+  wire [  3:0] SRAM1WREN;  // SRAM Byte write enable
+  wire [ 31:0] SRAM1WDATA;  // SRAM Write data
+  wire         SRAM1CS;  // SRAM Chip select
+
+
+
+
+  assign SRAM0HCLK = CPU0HCLK;
+  assign SRAM1HCLK = CPU0HCLK;
+
+
+  // Core memories for IoT subsystem, suitable for FPGA
+  sram_subsystem u_sram_subsystem (
+      .SRAMHRESETn(MTXHRESETn),
+      .SRAM0HCLK  (SRAM0HCLK),
+      .SRAM0RDATA (SRAM0RDATA),
+      .SRAM0ADDR  (SRAM0ADDR),
+      .SRAM0WREN  (SRAM0WREN),
+      .SRAM0WDATA (SRAM0WDATA),
+      .SRAM0CS    (SRAM0CS),
+
+      .SRAM1HCLK  (SRAM1HCLK),
+      .SRAM1RDATA (SRAM1RDATA),
+      .SRAM1ADDR  (SRAM1ADDR),
+      .SRAM1WREN  (SRAM1WREN),
+      .SRAM1WDATA (SRAM1WDATA),
+      .SRAM1CS    (SRAM1CS)
+  );
+
   // ------------------------------------------------------------
   // u_cmsdk_ahb_to_sram0 - AHB to SRAM bridge
   // ------------------------------------------------------------
@@ -1563,71 +1613,10 @@ module cm3_top #(
     .SRAMCS               (SRAM1CS)
   );
 
-  // ------------------------------------------------------------
-  // u_cmsdk_ahb_to_sram2 - AHB to SRAM bridge
-  // ------------------------------------------------------------
-
-  // Connection
-  assign targsram2exresp_int = 1'b0;
-  assign targsram2hruser_int = 3'b000;
-
-  // module instantiation
-  cmsdk_ahb_to_sram #(.AW (15)) u_cmsdk_ahb_to_sram2 (
-    .HCLK                 (SRAM2HCLK),
-    .HRESETn              (MTXHRESETn),
-    .HSEL                 (targsram2hsel),
-    .HREADY               (targsram2hreadymux),
-    .HTRANS               (targsram2htrans),
-    .HSIZE                (targsram2hsize),
-    .HWRITE               (targsram2hwrite),
-    .HADDR                (targsram2haddr[14:0]),
-    .HWDATA               (targsram2hwdata),
-    .HREADYOUT            (targsram2hreadyout),
-    .HRESP                (targsram2hresp),
-    .HRDATA               (targsram2hrdata),
-
-    .SRAMRDATA            (SRAM2RDATA),
-    .SRAMADDR             (SRAM2ADDR),
-    .SRAMWEN              (SRAM2WREN),
-    .SRAMWDATA            (SRAM2WDATA),
-    .SRAMCS               (SRAM2CS)
-  );
-
-  // ------------------------------------------------------------
-  // u_cmsdk_ahb_to_sram3 - AHB to SRAM bridge
-  // ------------------------------------------------------------
-
-  // Connection
-  assign targsram3exresp_int = 1'b0;
-  assign targsram3hruser_int = 3'b000;
-
-  // module instantiation
-  cmsdk_ahb_to_sram #(.AW (15)) u_cmsdk_ahb_to_sram3 (
-    .HCLK                 (SRAM3HCLK),
-    .HRESETn              (MTXHRESETn),
-    .HSEL                 (targsram3hsel),
-    .HREADY               (targsram3hreadymux),
-    .HTRANS               (targsram3htrans),
-    .HSIZE                (targsram3hsize),
-    .HWRITE               (targsram3hwrite),
-    .HADDR                (targsram3haddr[14:0]),
-    .HWDATA               (targsram3hwdata),
-    .HREADYOUT            (targsram3hreadyout),
-    .HRESP                (targsram3hresp),
-    .HRDATA               (targsram3hrdata),
-
-    .SRAMRDATA            (SRAM3RDATA),
-    .SRAMADDR             (SRAM3ADDR),
-    .SRAMWEN              (SRAM3WREN),
-    .SRAMWDATA            (SRAM3WDATA),
-    .SRAMCS               (SRAM3CS)
-  );
 
   // Resolve unused but necessary wires
   assign unused = |{targsram0haddr[31:15],
                     targsram1haddr[31:15],
-                    targsram2haddr[31:15],
-                    targsram3haddr[31:15],
                     apbtargexp0paddr[1:0],
                     apbtargexp0pstrb,
                     apbtargexp1paddr[1:0],

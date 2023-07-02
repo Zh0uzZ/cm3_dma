@@ -25,7 +25,7 @@ module debug_tb;
     data[2] = 0;
     data[3] = 0;
     data[4] = 0;
-    data[5] = 0;
+    data[5] = 1;
 
 
 
@@ -301,4 +301,41 @@ module debug_tb;
       .txd_o()
   );
 
+  reg  [31:0] csram_q = 0;
+
+  // dbg_bridge_csram Outputs
+  wire        csram_cen;
+  wire [31:0] csram_addr;
+  wire [31:0] csram_d;
+  wire [31:0] csram_i;
+  wire [ 3:0] csram_wen;
+
+  dbg_bridge_csram #(
+      .CLK_FREQ   (CLK_FREQ),
+      .UART_SPEED (UART_SPEED),
+      .STS_ADDRESS(STS_ADDRESS)
+  ) u_dbg_bridge_csram (
+      .clk_i     (fclk),
+      .rst_i     (fpga_reset_n),
+      .uart_rxd_i(uart_txd_o),
+      .csram_q   (csram_q[31:0]),
+
+      .csram_cen (csram_cen),
+      .uart_txd_o(),
+      .csram_addr(csram_addr[31:0]),
+      .csram_d   (csram_d[31:0]),
+      .csram_i   (csram_i[31:0]),
+      .csram_wen (csram_wen[3:0])
+  );
+  cmsdk_fpga_sram #(
+      .AW(16)
+  ) u_cmsdk_fpga_sram (
+      .CLK  (fclk),
+      .ADDR (csram_addr[13:0]),
+      .WDATA(csram_d),
+      .WREN (csram_wen[3:0]),
+      .CS   (csram_cen),
+
+      .RDATA(csram_q)
+  );
 endmodule

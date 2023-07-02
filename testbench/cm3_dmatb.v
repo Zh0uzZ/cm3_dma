@@ -5,7 +5,7 @@ module cm3_dmatb;
 
   fpga_top u_m3(
     .fpga_clk(fclk),
-    .fpga_reset_n(fpga_reset_n)
+    .fpga_reset_n(~fpga_reset_n)
   );
 
   initial begin

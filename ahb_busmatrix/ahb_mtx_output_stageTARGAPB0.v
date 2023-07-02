@@ -340,7 +340,7 @@ module ahb_mtx_output_stageTARGAPB0 (
   assign req_port4 = held_tran_op4 & sel_op4;
 
   // Arbiter instance for resolving requests to this output stage
-  ahb_mtx_arbiterTARGEXP0 u_output_arb (
+  ahb_mtx_arbiterTARGAPB0 u_output_arb (
 
     .HCLK       (HCLK),
     .HRESETn    (HRESETn),

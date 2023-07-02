@@ -3,9 +3,9 @@ module dbg_bridge_csram
 // Params
 //-----------------------------------------------------------------
 #(
-    parameter CLK_FREQ     = 14745600,
-    parameter UART_SPEED   = 115200,
-    parameter STS_ADDRESS  = 32'hf0000004
+    parameter CLK_FREQ    = 14745600,
+    parameter UART_SPEED  = 115200,
+    parameter STS_ADDRESS = 32'hf0000004
 )
 //-----------------------------------------------------------------
 // Ports
@@ -15,20 +15,15 @@ module dbg_bridge_csram
     input wire        clk_i,
     input wire        rst_i,
     input wire        uart_rxd_i,
-    input wire        dbg_hready,
-    input wire [31:0] dbg_hrdata,
+    input wire [31:0] csram_q,
 
     // Outputs
-    output reg         dbg_hsel,
+    output reg         csram_cen,   //csram cs select signal
     output wire        uart_txd_o,
-    output reg         dbg_hwrite,
-    output reg  [31:0] dbg_haddr,
-    output reg  [ 2:0] dbg_hsize,
-    output wire [ 2:0] dbg_hburst,
-    output wire [ 1:0] dbg_htrans,
-    output wire [31:0] dbg_hwdata,
-    output wire [ 3:0] dbg_hwuser,
-    output wire        dbg_hresp
+    output reg  [31:0] csram_addr,  //csram write/read address
+    output wire [31:0] csram_d,     //csram write data
+    output wire [31:0] csram_i,     //csram write instruction
+    output wire [ 3:0] csram_wen    //csram write enable mask
 );
 
   //-----------------------------------------------------------------
@@ -165,14 +160,14 @@ module dbg_bridge_csram
   );
 
 
-  //wait read , ahb read data needs 3clock
+  //wait read , ahb read data needs 1clock
   reg [1:0] read_bits;
   always @(posedge clk_i or negedge rst_i) begin
     if (!rst_i) read_bits <= 2'b00;
     else begin
       if (state_q == STATE_ADDR3) read_bits <= 2'b00;
-      else if(state_q == STATE_READ) read_bits <= read_bits + 1;
-      else read_bits <= 2'b00;
+      else if (state_q == STATE_READ) read_bits <= read_bits + 1;
+      else read_bits <= 'b00;
     end
   end
 
@@ -219,7 +214,7 @@ module dbg_bridge_csram
       // STATE_WRITE
       //-----------------------------------------
       STATE_WRITE: begin
-        if (len_q == 8'b0 && (dbg_hready || magic_addr_w)) next_state_r = STATE_IDLE;
+        if (len_q == 8'b0 || magic_addr_w) next_state_r = STATE_IDLE;
         else next_state_r = STATE_WRITE;
       end
       //-----------------------------------------
@@ -227,7 +222,7 @@ module dbg_bridge_csram
       //-----------------------------------------
       STATE_READ: begin
         // Data ready
-        if ((dbg_hready || magic_addr_w) && read_bits == 2'b11) next_state_r = STATE_DATA0;
+        if (read_bits[1]) next_state_r = STATE_DATA0;
       end
       //-----------------------------------------
       // STATE_DATA
@@ -286,7 +281,7 @@ module dbg_bridge_csram
     if (!rst_i) len_q <= 8'd0;
     else if (state_q == STATE_LEN && rx_valid_w) len_q[7:0] <= rx_data_w;
     else if (state_q == STATE_WRITE && rx_valid_w) len_q <= len_q - 8'd1;
-    else if ((state_q == STATE_READ && read_bits == 2'b11) && (dbg_hready || magic_addr_w)) len_q <= len_q - 8'd1;
+    else if ((state_q == STATE_READ && read_bits == 2'b10) && magic_addr_w) len_q <= len_q - 8'd1;
     else if (((state_q == STATE_DATA0) || (state_q == STATE_DATA1) || (state_q == STATE_DATA2)) && (tx_accept_w && !read_skip_w))
       len_q <= len_q - 8'd1;
 
@@ -300,9 +295,9 @@ module dbg_bridge_csram
     else if (state_q == STATE_ADDR2 && rx_valid_w) mem_addr_q[15:8] <= rx_data_w;
     else if (state_q == STATE_ADDR3 && rx_valid_w) mem_addr_q[7:0] <= rx_data_w;
     // Address increment on every access issued
-    else if (state_q == STATE_WRITE && dbg_hready && rx_valid_w)
-      mem_addr_q <= {mem_addr_q[31:0]} + 'd1;
-    else if ((state_q == STATE_READ && dbg_hready ) && read_bits == 2'b00) mem_addr_q <= {mem_addr_q[31:0]} + 'd4;
+    else if (state_q == STATE_WRITE && rx_valid_w && data_idx_q == 2'b11)
+      mem_addr_q <= {mem_addr_q[31:2], 2'b00} + 'd4;
+    else if (state_q == STATE_READ && read_bits[0]) mem_addr_q <= {mem_addr_q[31:2], 2'b00} + 'd4;
 
   //-----------------------------------------------------------------
   // Data Index 只有write时有效
@@ -333,7 +328,7 @@ module dbg_bridge_csram
     else if (state_q == STATE_READ && mem_addr_q == STS_ADDRESS)
       data_q <= {16'hcafe, 15'd0, 1'b0};
     // Read from memory
-    else if ((state_q == STATE_READ && read_bits == 2'b11) && dbg_hready) data_q <= dbg_hrdata;
+    else if (state_q == STATE_READ && read_bits == 'b10) data_q <= csram_q;
     // Shift data out (read response -> UART)
     else if (((state_q == STATE_DATA0) || (state_q == STATE_DATA1) || (state_q == STATE_DATA2)) && (tx_accept_w || read_skip_w))
       data_q <= {8'b0, data_q[31:8]};
@@ -341,34 +336,44 @@ module dbg_bridge_csram
   assign tx_data_w = data_q[7:0];
 
 
-  //AHB signals
+  reg [1:0] cs_reg;
   always @(posedge clk_i or negedge rst_i) begin
-    if (!rst_i) begin
-      dbg_hwrite <= 'd0;
-      dbg_hsel   <= 1'b0;
-      dbg_haddr  <= {32{1'b0}};
-      dbg_hsize  <= 3'b000;
-    end  // Address increment on every access issued
-    else if (state_q == STATE_WRITE && dbg_hready && rx_valid_w) begin
-      dbg_hwrite <= 1'b1;
-      dbg_hsize  <= 3'b000;
-      dbg_hsel   <= 1'b1;
-      dbg_haddr  <= mem_addr_q;
-    end else if ((state_q == STATE_READ && dbg_hready) && read_bits == 2'b00) begin
-      dbg_hwrite <= 1'b0;
-      dbg_hsize  <= 3'b010;
-      dbg_hsel   <= 1'b1;
-      dbg_haddr  <= mem_addr_q;
-    end else begin
-      dbg_hwrite <= 1'b0;
-      dbg_hsel   <= 1'b0;
-      dbg_haddr  <= dbg_haddr;
+    if (!rst_i) cs_reg <= 2'b10;
+    else begin
+      if (!cs_reg[1]) cs_reg <= cs_reg + 'b1;
     end
   end
 
-  assign dbg_hwdata = data_q;
-  assign dbg_hburst = 3'b001;
-  assign dbg_htrans = 2'b10;
+  // cs signal
+  always @(posedge clk_i or negedge rst_i) begin
+    if (!rst_i) begin
+      csram_cen <= 1'b0;
+    end  // Address increment on every access issued
+    else if (state_q == STATE_WRITE && rx_valid_w && (data_idx_q == 2'b11 || len_q == 'd1)) begin
+      csram_cen <= 1'b1;
+    end else if (state_q == STATE_READ && read_bits == 'b00) begin
+      csram_cen <= 1'b1;
+    end else begin
+      csram_cen <= 1'b0;
+    end
+  end
+
+
+  // addr nend 2 clock to delay
+  reg [31:0] addr_q1, addr_q2;
+  always @(posedge clk_i or negedge rst_i) begin
+    if (!rst_i) begin
+      addr_q1 <= 32'h00000000;
+      addr_q2 <= 32'h00000000;
+      csram_addr <= 32'h00000000;
+    end else begin
+      addr_q1 <= {mem_addr_q[31:2], 2'b00};
+      addr_q2 <= addr_q1;
+      if (state_q == STATE_WRITE) csram_addr <= addr_q2;
+      else if (state_q == STATE_READ && read_bits[0] == 'b0) csram_addr <= {mem_addr_q[31:2], 2'b00};
+    end
+  end
+  assign csram_d = data_q;
 
 
   //-----------------------------------------------------------------
@@ -403,7 +408,7 @@ module dbg_bridge_csram
     else if (state_q == STATE_WRITE && rx_valid_w && (data_idx_q == 2'd3 || len_q == 8'd1))
       mem_sel_q <= mem_sel_r;
 
-  assign dbg_hwuser = mem_sel_q;
+  assign csram_wen = (state_q == STATE_WRITE) ? mem_sel_q : 'b0000;
 
   //-----------------------------------------------------------------
   // Write enable

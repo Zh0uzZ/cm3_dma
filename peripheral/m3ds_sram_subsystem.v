@@ -25,6 +25,7 @@
 //            Contains main IoT Subsystem SRAM instances for FPGA
 // -------------------------------------------------------------------------------
 
+`define SIMULATION
 
 module m3ds_sram_subsystem (
   input   wire            SRAMHRESETn,

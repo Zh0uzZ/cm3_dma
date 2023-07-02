@@ -15,12 +15,11 @@
 //------------------------------------------------------------------------------
 // Verilog-2001 (IEEE Std 1364-2001)
 //------------------------------------------------------------------------------
-`define ROM_FILENAME "/home/hank/workspace/vivado/CM3/vivado/cm3_dma/cm3_dma/cm3_dma.sim/sim_1/behav/xsim/soc.hex"
 
 
 module fpga_top (
     input wire fpga_clk,     // Free running clock
-    input wire fpga_reset_n, // CB_nRST system reset
+    input wire fpga_reset_n, // system reset
 
     // --------------------------------------------------------------------
     // UART
@@ -102,59 +101,6 @@ module fpga_top (
   // --------------------------------------------------------------------
   // Integration signals
   // --------------------------------------------------------------------
-  // AHB MTX (<-> Flash replacement)
-  wire         targflash0hsel;
-  wire [ 31:0] targflash0haddr;
-  wire [  1:0] targflash0htrans;
-  wire         targflash0hwrite;
-  wire [  2:0] targflash0hsize;
-  wire [ 31:0] targflash0hwdata;
-  wire [  2:0] targflash0hburst;
-  wire [  3:0] targflash0hprot;
-  wire [  1:0] targflash0memattr;
-  wire         targflash0exreq;
-  wire [  3:0] targflash0hmaster;
-  wire         targflash0hmastlock;
-  wire         targflash0hauser;
-  wire [  3:0] targflash0hwuser;
-  wire         targflash0hreadymux;
-  wire         targflash0hreadyout;
-  wire [ 31:0] targflash0hrdata;
-  wire         targflash0hresp;
-  wire         targflash0exresp;
-
-  wire [  2:0] targflash0hruser;
-
-  // Wires for IoT subsystem memories
-  wire [ 31:0] SRAMFRDATA;  // SRAM Read data bus
-  wire [ 12:0] SRAMFADDR;  // SRAM address
-  wire [  3:0] SRAMFWREN;  // SRAM Byte write enable
-  wire [ 31:0] SRAMFWDATA;  // SRAM Write data
-  wire         SRAMFCS;  // SRAM Chip select
-
-  wire [ 31:0] SRAM0RDATA;  // SRAM Read data bus
-  wire [ 12:0] SRAM0ADDR;  // SRAM address
-  wire [  3:0] SRAM0WREN;  // SRAM Byte write enable
-  wire [ 31:0] SRAM0WDATA;  // SRAM Write data
-  wire         SRAM0CS;  // SRAM Chip select
-
-  wire [ 31:0] SRAM1RDATA;  // SRAM Read data bus
-  wire [ 12:0] SRAM1ADDR;  // SRAM address
-  wire [  3:0] SRAM1WREN;  // SRAM Byte write enable
-  wire [ 31:0] SRAM1WDATA;  // SRAM Write data
-  wire         SRAM1CS;  // SRAM Chip select
-
-  wire [ 31:0] SRAM2RDATA;  // SRAM Read data bus
-  wire [ 12:0] SRAM2ADDR;  // SRAM address
-  wire [  3:0] SRAM2WREN;  // SRAM Byte write enable
-  wire [ 31:0] SRAM2WDATA;  // SRAM Write data
-  wire         SRAM2CS;  // SRAM Chip select
-
-  wire [ 31:0] SRAM3RDATA;  // SRAM Read data bus
-  wire [ 12:0] SRAM3ADDR;  // SRAM address
-  wire [  3:0] SRAM3WREN;  // SRAM Byte write enable
-  wire [ 31:0] SRAM3WDATA;  // SRAM Write data
-  wire         SRAM3CS;  // SRAM Chip select
 
   // Expansion AHB master
   wire         targexp0hsel;
@@ -241,7 +187,7 @@ module fpga_top (
   wire         initexp1hready;
   wire         initexp1hresp;
 
-  // AHB slave input driven 
+  // AHB slave input driven  from uart debug bridge
   wire         initexp2hsel;
   wire [ 31:0] initexp2haddr;
   wire [  1:0] initexp2htrans;
@@ -456,11 +402,7 @@ module fpga_top (
 
 
   wire MTXHCLK = fclk;
-  wire SRAMFHCLK = fclk;
-  wire SRAM0HCLK = fclk;
-  wire SRAM1HCLK = fclk;
-  wire SRAM2HCLK = fclk;
-  wire SRAM3HCLK = fclk;
+  wire FLASHHCLK = fclk;
   wire SYSCTRLHCLK = fclk;
   wire TIMER0PCLK = fclk;
   wire TIMER0PCLKG = fclk;
@@ -518,7 +460,6 @@ module fpga_top (
   wire        CPU0SYSRESETn = reg_cpu0_rst_n;  // For CPU only - release after CB_nRST
   wire        CPU0PORESETn = cpu_reset_n;  // For CPU only - release after CB_nRST
   wire        MTXHRESETn = reg_sys_rst_n;
-  wire        SRAMHRESETn = reg_sys_rst_n;
   wire        TIMER0PRESETn = reg_sys_rst_n;
   wire        TIMER1PRESETn = reg_sys_rst_n;
 
@@ -672,6 +613,37 @@ module fpga_top (
   assign initexp1hauser = 1'b0;
   assign initexp1hwuser = {4{1'b0}};
 
+
+  // AHB MTX (<-> SRAM2)
+  wire        targsram2hsel;
+  wire [31:0] targsram2haddr;
+  wire [ 1:0] targsram2htrans;
+  wire        targsram2hwrite;
+  wire [ 2:0] targsram2hsize;
+  wire [31:0] targsram2hwdata;
+  wire        targsram2hreadymux;
+  wire        targsram2hreadyout;
+  wire [31:0] targsram2hrdata;
+  wire        targsram2hresp;
+  wire        targsram2exresp_int;
+
+  wire [ 2:0] targsram2hruser_int;
+
+  // AHB MTX (<-> SRAM3)
+  wire        targsram3hsel;
+  wire [31:0] targsram3haddr;
+  wire [ 1:0] targsram3htrans;
+  wire        targsram3hwrite;
+  wire [ 2:0] targsram3hsize;
+  wire [31:0] targsram3hwdata;
+  wire        targsram3hreadymux;
+  wire        targsram3hreadyout;
+  wire [31:0] targsram3hrdata;
+  wire        targsram3hresp;
+  wire        targsram3exresp_int;
+
+  wire [ 2:0] targsram3hruser_int;
+
   // // --------------------------------------------------------------------
   // // Code Download from external MCU over SPI
   // // This drives one of the AHB slave ports on the IoT subsystem
@@ -801,113 +773,70 @@ module fpga_top (
   // --------------------------------------------------------------------
 
   cm3_top u_cm3_top (
-      .CPU0FCLK           (CPU0FCLK),
-      .CPU0HCLK           (CPU0HCLK),
-      .TPIUTRACECLKIN     (TPIUTRACECLKIN),
-      .CPU0PORESETn       (CPU0PORESETn),
-      .CPU0SYSRESETn      (CPU0SYSRESETn),
-      .CPU0STCLK          (CPU0STCLK),
-      .CPU0STCALIB        (CPU0STCALIB),
-      .SRAM0HCLK          (SRAM0HCLK),
-      .SRAM1HCLK          (SRAM1HCLK),
-      .SRAM2HCLK          (SRAM2HCLK),
-      .SRAM3HCLK          (SRAM3HCLK),
-      .MTXHCLK            (MTXHCLK),
-      .MTXHRESETn         (MTXHRESETn),
-      .AHB2APBHCLK        (AHB2APBHCLK),
-      .PCLKEN             (1'b1),
-      .TIMER0PCLK         (TIMER0PCLK),
-      .TIMER0PCLKG        (TIMER0PCLKG),
-      .TIMER0PRESETn      (TIMER0PRESETn),
-      .TIMER1PCLK         (TIMER1PCLK),
-      .TIMER1PCLKG        (TIMER1PCLKG),
-      .TIMER1PRESETn      (TIMER1PRESETn),
-      .SRAM0RDATA         (SRAM0RDATA),
-      .SRAM0ADDR          (SRAM0ADDR),
-      .SRAM0WREN          (SRAM0WREN),
-      .SRAM0WDATA         (SRAM0WDATA),
-      .SRAM0CS            (SRAM0CS),
-      .SRAM1RDATA         (SRAM1RDATA),
-      .SRAM1ADDR          (SRAM1ADDR),
-      .SRAM1WREN          (SRAM1WREN),
-      .SRAM1WDATA         (SRAM1WDATA),
-      .SRAM1CS            (SRAM1CS),
-      .SRAM2RDATA         (SRAM2RDATA),
-      .SRAM2ADDR          (SRAM2ADDR),
-      .SRAM2WREN          (SRAM2WREN),
-      .SRAM2WDATA         (SRAM2WDATA),
-      .SRAM2CS            (SRAM2CS),
-      .SRAM3RDATA         (SRAM3RDATA),
-      .SRAM3ADDR          (SRAM3ADDR),
-      .SRAM3WREN          (SRAM3WREN),
-      .SRAM3WDATA         (SRAM3WDATA),
-      .SRAM3CS            (SRAM3CS),
-      .TIMER0EXTIN        (timer0extin),
-      .TIMER0PRIVMODEN    (timer0privmoden),
-      .TIMER1EXTIN        (timer1extin),
-      .TIMER1PRIVMODEN    (timer1privmoden),
-      .TIMER0TIMERINT     (cpu0intisr[8]),
-      .TIMER1TIMERINT     (cpu0intisr[9]),
-      .TARGFLASH0HSEL     (targflash0hsel),
-      .TARGFLASH0HADDR    (targflash0haddr),
-      .TARGFLASH0HTRANS   (targflash0htrans),
-      .TARGFLASH0HWRITE   (targflash0hwrite),
-      .TARGFLASH0HSIZE    (targflash0hsize),
-      .TARGFLASH0HBURST   (targflash0hburst),
-      .TARGFLASH0HPROT    (targflash0hprot),
-      .TARGFLASH0MEMATTR  (targflash0memattr),
-      .TARGFLASH0EXREQ    (targflash0exreq),
-      .TARGFLASH0HMASTER  (targflash0hmaster),
-      .TARGFLASH0HWDATA   (targflash0hwdata),
-      .TARGFLASH0HMASTLOCK(targflash0hmastlock),
-      .TARGFLASH0HREADYMUX(targflash0hreadymux),
-      .TARGFLASH0HAUSER   (targflash0hauser),
-      .TARGFLASH0HWUSER   (targflash0hwuser),
-      .TARGFLASH0HRDATA   (targflash0hrdata),
-      .TARGFLASH0HREADYOUT(targflash0hreadyout),
-      .TARGFLASH0HRESP    (targflash0hresp),
-      .TARGFLASH0EXRESP   (targflash0exresp),
-      .TARGFLASH0HRUSER   (targflash0hruser),
-      .TARGEXP0HSEL       (targexp0hsel),
-      .TARGEXP0HADDR      (targexp0haddr),
-      .TARGEXP0HTRANS     (targexp0htrans),
-      .TARGEXP0HWRITE     (targexp0hwrite),
-      .TARGEXP0HSIZE      (targexp0hsize),
-      .TARGEXP0HBURST     (targexp0hburst),
-      .TARGEXP0HPROT      (targexp0hprot),
-      .TARGEXP0MEMATTR    (targexp0memattr),
-      .TARGEXP0EXREQ      (targexp0exreq),
-      .TARGEXP0HMASTER    (targexp0hmaster),
-      .TARGEXP0HWDATA     (targexp0hwdata),
-      .TARGEXP0HMASTLOCK  (targexp0hmastlock),
-      .TARGEXP0HREADYMUX  (targexp0hreadymux),
-      .TARGEXP0HAUSER     (targexp0hauser),
-      .TARGEXP0HWUSER     (targexp0hwuser),
-      .TARGEXP0HRDATA     (targexp0hrdata),
-      .TARGEXP0HREADYOUT  (targexp0hreadyout),
-      .TARGEXP0HRESP      (targexp0hresp),
-      .TARGEXP0EXRESP     (targexp0exresp),
-      .TARGEXP0HRUSER     (targexp0hruser),
-      .TARGEXP1HSEL       (targexp1hsel),
-      .TARGEXP1HADDR      (targexp1haddr),
-      .TARGEXP1HTRANS     (targexp1htrans),
-      .TARGEXP1HWRITE     (targexp1hwrite),
-      .TARGEXP1HSIZE      (targexp1hsize),
-      .TARGEXP1HBURST     (targexp1hburst),
-      .TARGEXP1HPROT      (targexp1hprot),
-      .TARGEXP1MEMATTR    (targexp1memattr),
-      .TARGEXP1EXREQ      (targexp1exreq),
-      .TARGEXP1HMASTER    (targexp1hmaster),
-      .TARGEXP1HWDATA     (targexp1hwdata),
-      .TARGEXP1HMASTLOCK  (targexp1hmastlock),
-      .TARGEXP1HREADYMUX  (targexp1hreadymux),
-      .TARGEXP1HAUSER     (targexp1hauser),
-      .TARGEXP1HWUSER     (targexp1hwuser),
-      .TARGEXP1HRDATA     (targexp1hrdata),
-      .TARGEXP1HREADYOUT  (targexp1hreadyout),
-      .TARGEXP1HRESP      (targexp1hresp),
-      .TARGEXP1EXRESP     (targexp1exresp),
-      .TARGEXP1HRUSER     (targexp1hruser),
+      .CPU0FCLK       (CPU0FCLK),
+      .CPU0HCLK       (CPU0HCLK),
+      .TPIUTRACECLKIN (TPIUTRACECLKIN),
+      .CPU0PORESETn   (CPU0PORESETn),
+      .CPU0SYSRESETn  (CPU0SYSRESETn),
+      .CPU0STCLK      (CPU0STCLK),
+      .CPU0STCALIB    (CPU0STCALIB),
+      .MTXHCLK        (MTXHCLK),
+      .MTXHRESETn     (MTXHRESETn),
+      .AHB2APBHCLK    (AHB2APBHCLK),
+      .PCLKEN         (1'b1),
+      .TIMER0PCLK     (TIMER0PCLK),
+      .TIMER0PCLKG    (TIMER0PCLKG),
+      .TIMER0PRESETn  (TIMER0PRESETn),
+      .TIMER1PCLK     (TIMER1PCLK),
+      .TIMER1PCLKG    (TIMER1PCLKG),
+      .TIMER1PRESETn  (TIMER1PRESETn),
+      .TIMER0EXTIN    (timer0extin),
+      .TIMER0PRIVMODEN(timer0privmoden),
+      .TIMER1EXTIN    (timer1extin),
+      .TIMER1PRIVMODEN(timer1privmoden),
+      .TIMER0TIMERINT (cpu0intisr[8]),
+      .TIMER1TIMERINT (cpu0intisr[9]),
+
+      .TARGEXP0HSEL     (targexp0hsel),
+      .TARGEXP0HADDR    (targexp0haddr),
+      .TARGEXP0HTRANS   (targexp0htrans),
+      .TARGEXP0HWRITE   (targexp0hwrite),
+      .TARGEXP0HSIZE    (targexp0hsize),
+      .TARGEXP0HBURST   (targexp0hburst),
+      .TARGEXP0HPROT    (targexp0hprot),
+      .TARGEXP0MEMATTR  (targexp0memattr),
+      .TARGEXP0EXREQ    (targexp0exreq),
+      .TARGEXP0HMASTER  (targexp0hmaster),
+      .TARGEXP0HWDATA   (targexp0hwdata),
+      .TARGEXP0HMASTLOCK(targexp0hmastlock),
+      .TARGEXP0HREADYMUX(targexp0hreadymux),
+      .TARGEXP0HAUSER   (targexp0hauser),
+      .TARGEXP0HWUSER   (targexp0hwuser),
+      .TARGEXP0HRDATA   (targexp0hrdata),
+      .TARGEXP0HREADYOUT(targexp0hreadyout),
+      .TARGEXP0HRESP    (targexp0hresp),
+      .TARGEXP0EXRESP   (targexp0exresp),
+      .TARGEXP0HRUSER   (targexp0hruser),
+      .TARGEXP1HSEL     (targexp1hsel),
+      .TARGEXP1HADDR    (targexp1haddr),
+      .TARGEXP1HTRANS   (targexp1htrans),
+      .TARGEXP1HWRITE   (targexp1hwrite),
+      .TARGEXP1HSIZE    (targexp1hsize),
+      .TARGEXP1HBURST   (targexp1hburst),
+      .TARGEXP1HPROT    (targexp1hprot),
+      .TARGEXP1MEMATTR  (targexp1memattr),
+      .TARGEXP1EXREQ    (targexp1exreq),
+      .TARGEXP1HMASTER  (targexp1hmaster),
+      .TARGEXP1HWDATA   (targexp1hwdata),
+      .TARGEXP1HMASTLOCK(targexp1hmastlock),
+      .TARGEXP1HREADYMUX(targexp1hreadymux),
+      .TARGEXP1HAUSER   (targexp1hauser),
+      .TARGEXP1HWUSER   (targexp1hwuser),
+      .TARGEXP1HRDATA   (targexp1hrdata),
+      .TARGEXP1HREADYOUT(targexp1hreadyout),
+      .TARGEXP1HRESP    (targexp1hresp),
+      .TARGEXP1EXRESP   (targexp1exresp),
+      .TARGEXP1HRUSER   (targexp1hruser),
 
 
       .INITEXP0HSEL     (initexp0hsel),
@@ -971,6 +900,51 @@ module fpga_top (
       .INITEXP2HRESP    (initexp2hresp),
       .INITEXP2EXRESP   (initexp2exresp),
       .INITEXP2HRUSER   (initexp2hruser),
+
+
+      .TARGSRAM2HSEL     (targsram2hsel),
+      .TARGSRAM2HADDR    (targsram2haddr),
+      .TARGSRAM2HTRANS   (targsram2htrans),
+      .TARGSRAM2HMASTER  (  /*Not supported*/),
+      .TARGSRAM2HWRITE   (targsram2hwrite),
+      .TARGSRAM2HSIZE    (targsram2hsize),
+      .TARGSRAM2HMASTLOCK(  /*Not supported*/),
+      .TARGSRAM2HWDATA   (targsram2hwdata),
+      .TARGSRAM2HBURST   (  /*Not supported*/),
+      .TARGSRAM2HPROT    (  /*Not supported*/),
+      .TARGSRAM2MEMATTR  (  /*Not supported*/),
+      .TARGSRAM2EXREQ    (  /*Not supported*/),
+      .TARGSRAM2HREADYMUX(targsram2hreadymux),
+      .TARGSRAM2HREADYOUT(targsram2hreadyout),
+      .TARGSRAM2HRDATA   (targsram2hrdata),
+      .TARGSRAM2HRESP    (targsram2hresp),
+      .TARGSRAM2EXRESP   (targsram2exresp_int),
+      .TARGSRAM2HAUSER   (  /*Not supported*/),
+      .TARGSRAM2HWUSER   (  /*Not supported*/),
+      .TARGSRAM2HRUSER   (targsram2hruser_int),
+
+      .TARGSRAM3HSEL     (targsram3hsel),
+      .TARGSRAM3HADDR    (targsram3haddr),
+      .TARGSRAM3HTRANS   (targsram3htrans),
+      .TARGSRAM3HMASTER  (  /*Not supported*/),
+      .TARGSRAM3HWRITE   (targsram3hwrite),
+      .TARGSRAM3HSIZE    (targsram3hsize),
+      .TARGSRAM3HMASTLOCK(  /*Not supported*/),
+      .TARGSRAM3HWDATA   (targsram3hwdata),
+      .TARGSRAM3HBURST   (  /*Not supported*/),
+      .TARGSRAM3HPROT    (  /*Not supported*/),
+      .TARGSRAM3MEMATTR  (  /*Not supported*/),
+      .TARGSRAM3EXREQ    (  /*Not supported*/),
+      .TARGSRAM3HREADYMUX(targsram3hreadymux),
+      .TARGSRAM3HREADYOUT(targsram3hreadyout),
+      .TARGSRAM3HRDATA   (targsram3hrdata),
+      .TARGSRAM3HRESP    (targsram3hresp),
+      .TARGSRAM3EXRESP   (targsram3exresp_int),
+      .TARGSRAM3HAUSER   (  /*Not supported*/),
+      .TARGSRAM3HWUSER   (  /*Not supported*/),
+      .TARGSRAM3HRUSER   (targsram3hruser_int),
+
+
 
       .APBTARGEXP2PSEL    (apbtargexp2psel),
       .APBTARGEXP2PENABLE (apbtargexp2penable),
@@ -1179,51 +1153,101 @@ module fpga_top (
       .CPU0BIGEND(cpu0_bigend)
   );
 
+  // All peripherals and memories
 
-  // --------------------------------------------------------------------
-  // SRAM to replace FLASH in FPGA
-  // --------------------------------------------------------------------
+
+  // ------------------------------------------------------------
+  // u_cmsdk_ahb_to_sram2 - AHB to SRAM bridge
+  // ------------------------------------------------------------
+
+  wire        SRAM2HCLK;
+  wire [31:0] SRAM2RDATA;  // SRAM Read data bus
+  wire [12:0] SRAM2ADDR;  // SRAM address
+  wire [ 3:0] SRAM2WREN;  // SRAM Byte write enable
+  wire [31:0] SRAM2WDATA;  // SRAM Write data
+  wire        SRAM2CS;  // SRAM Chip select
+
+  wire        SRAM3HCLK;
+  wire [31:0] SRAM3RDATA;  // SRAM Read data bus
+  wire [12:0] SRAM3ADDR;  // SRAM address
+  wire [ 3:0] SRAM3WREN;  // SRAM Byte write enable
+  wire [31:0] SRAM3WDATA;  // SRAM Write data
+  wire        SRAM3CS;  // SRAM Chip select
+
+
+  assign SRAM2HCLK = MTXHCLK;
+  assign SRAM3HCLK = MTXHCLK;
+
+  // Connection
+  assign targsram2exresp_int = 1'b0;
+  assign targsram2hruser_int = 3'b000;
+
   // module instantiation
-
-  AHB2MEM #(
-      .MEMWIDTH(16),
-      .INIT    (1),
-      .FILENAME()
-  ) uAHB2ROM (
-      .HSEL     (targflash0hsel),
-      .HCLK     (SRAMFHCLK),
+  cmsdk_ahb_to_sram #(
+      .AW(15)
+  ) u_cmsdk_ahb_to_sram2 (
+      .HCLK     (SRAM2HCLK),
       .HRESETn  (MTXHRESETn),
-      .HREADY   (targflash0hreadymux),
-      .HADDR    (targflash0haddr),
-      .HTRANS   (targflash0htrans),
-      .HWRITE   (targflash0hwrite),
-      .HSIZE    (targflash0hsize),
-      .HWDATA   (targflash0hwdata),
-      .HRDATA   (targflash0hrdata),
-      .HREADYOUT(targflash0hreadyout)
+      .HSEL     (targsram2hsel),
+      .HREADY   (targsram2hreadymux),
+      .HTRANS   (targsram2htrans),
+      .HSIZE    (targsram2hsize),
+      .HWRITE   (targsram2hwrite),
+      .HADDR    (targsram2haddr[14:0]),
+      .HWDATA   (targsram2hwdata),
+      .HREADYOUT(targsram2hreadyout),
+      .HRESP    (targsram2hresp),
+      .HRDATA   (targsram2hrdata),
+
+      .SRAMRDATA(SRAM2RDATA),
+      .SRAMADDR (SRAM2ADDR),
+      .SRAMWEN  (SRAM2WREN),
+      .SRAMWDATA(SRAM2WDATA),
+      .SRAMCS   (SRAM2CS)
   );
 
-  // Core memories for IoT subsystem, suitable for FPGA
-  m3ds_sram_subsystem u_sram_subsystem (
-      .SRAMHRESETn(SRAMHRESETn),
-      .SRAM0HCLK  (SRAM0HCLK),
-      .SRAM0RDATA (SRAM0RDATA),
-      .SRAM0ADDR  (SRAM0ADDR),
-      .SRAM0WREN  (SRAM0WREN),
-      .SRAM0WDATA (SRAM0WDATA),
-      .SRAM0CS    (SRAM0CS),
-      .SRAM1HCLK  (SRAM1HCLK),
-      .SRAM1RDATA (SRAM1RDATA),
-      .SRAM1ADDR  (SRAM1ADDR),
-      .SRAM1WREN  (SRAM1WREN),
-      .SRAM1WDATA (SRAM1WDATA),
-      .SRAM1CS    (SRAM1CS),
+  // ------------------------------------------------------------
+  // u_cmsdk_ahb_to_sram3 - AHB to SRAM bridge
+  // ------------------------------------------------------------
+
+  // Connection
+  assign targsram3exresp_int = 1'b0;
+  assign targsram3hruser_int = 3'b000;
+
+  // module instantiation
+  cmsdk_ahb_to_sram #(
+      .AW(15)
+  ) u_cmsdk_ahb_to_sram3 (
+      .HCLK     (SRAM3HCLK),
+      .HRESETn  (MTXHRESETn),
+      .HSEL     (targsram3hsel),
+      .HREADY   (targsram3hreadymux),
+      .HTRANS   (targsram3htrans),
+      .HSIZE    (targsram3hsize),
+      .HWRITE   (targsram3hwrite),
+      .HADDR    (targsram3haddr[14:0]),
+      .HWDATA   (targsram3hwdata),
+      .HREADYOUT(targsram3hreadyout),
+      .HRESP    (targsram3hresp),
+      .HRDATA   (targsram3hrdata),
+
+      .SRAMRDATA(SRAM3RDATA),
+      .SRAMADDR (SRAM3ADDR),
+      .SRAMWEN  (SRAM3WREN),
+      .SRAMWDATA(SRAM3WDATA),
+      .SRAMCS   (SRAM3CS)
+  );
+
+
+  csram_subsystem u_csram_subsystem (
+      .SRAMHRESETn(MTXHRESETn),
       .SRAM2HCLK  (SRAM2HCLK),
       .SRAM2RDATA (SRAM2RDATA),
       .SRAM2ADDR  (SRAM2ADDR),
       .SRAM2WREN  (SRAM2WREN),
       .SRAM2WDATA (SRAM2WDATA),
       .SRAM2CS    (SRAM2CS),
+
       .SRAM3HCLK  (SRAM3HCLK),
       .SRAM3RDATA (SRAM3RDATA),
       .SRAM3ADDR  (SRAM3ADDR),
@@ -1231,9 +1255,6 @@ module fpga_top (
       .SRAM3WDATA (SRAM3WDATA),
       .SRAM3CS    (SRAM3CS)
   );
-
-
-  // All peripherals and memories
 
 
   wire [15:0] gpio0_altfunc_o;  // Alternate function control
